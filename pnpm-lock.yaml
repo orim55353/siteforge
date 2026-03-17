@@ -89,6 +89,12 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/ai:
+    devDependencies:
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/db:
     dependencies:
       '@prisma/client':
@@ -261,8 +267,42 @@ importers:
         specifier: ^4.7.0
         version: 4.21.0
 
+  workers/extra-pages:
+    dependencies:
+      '@aws-sdk/client-s3':
+        specifier: ^3.1009.0
+        version: 3.1009.0
+      '@lead-gen/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
+      '@lead-gen/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      '@lead-gen/queue':
+        specifier: workspace:*
+        version: link:../../packages/queue
+      '@lead-gen/templates':
+        specifier: workspace:*
+        version: link:../../packages/templates
+      '@supabase/supabase-js':
+        specifier: ^2.49.1
+        version: 2.99.1
+      bullmq:
+        specifier: ^5.34.8
+        version: 5.70.4
+    devDependencies:
+      tsx:
+        specifier: ^4.19.3
+        version: 4.21.0
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   workers/page-gen:
     dependencies:
+      '@lead-gen/ai':
+        specifier: workspace:*
+        version: link:../../packages/ai
       '@lead-gen/db':
         specifier: workspace:*
         version: link:../../packages/db

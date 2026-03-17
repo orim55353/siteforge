@@ -8,6 +8,7 @@ import type {
   DeployJobData,
   SchedulerJobData,
   EmailJobData,
+  ExtraPagesJobData,
   ReplyIngestionJobData,
   DiscoveryJobResult,
   EnrichmentJobResult,
@@ -16,6 +17,7 @@ import type {
   DeployJobResult,
   SchedulerJobResult,
   EmailJobResult,
+  ExtraPagesJobResult,
   ReplyIngestionJobResult,
 } from "./jobs.js";
 
@@ -29,6 +31,7 @@ export const QUEUE_NAMES = {
   DEPLOY: "deploy",
   SCHEDULER: "scheduler",
   EMAIL: "email",
+  EXTRA_PAGES: "extra-pages",
   REPLY_INGESTION: "reply-ingestion",
 } as const;
 
@@ -86,6 +89,11 @@ export const emailQueue = new Queue<EmailJobData, EmailJobResult>(
   },
 );
 
+export const extraPagesQueue = new Queue<ExtraPagesJobData, ExtraPagesJobResult>(
+  QUEUE_NAMES.EXTRA_PAGES,
+  { connection: redisConnection, defaultJobOptions },
+);
+
 export const replyIngestionQueue = new Queue<ReplyIngestionJobData, ReplyIngestionJobResult>(
   QUEUE_NAMES.REPLY_INGESTION,
   { connection: redisConnection, defaultJobOptions },
@@ -100,5 +108,6 @@ export const allQueues = [
   deployQueue,
   schedulerQueue,
   emailQueue,
+  extraPagesQueue,
   replyIngestionQueue,
 ] as const;

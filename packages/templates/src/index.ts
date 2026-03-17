@@ -76,3 +76,5 @@ export { Handlebars };
 
 export { injectClaimBar } from "./claim-bar.js";
 export type { ClaimBarOptions } from "./claim-bar.js";
+
+export { injectPageNav } from "./nav-injection.js";

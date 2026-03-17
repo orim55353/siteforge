@@ -157,6 +157,8 @@ FROM_EMAIL=                # Resend sender address
 MAX_EMAILS_PER_DAY=500
 AGENCY_CHECKOUT_URL=       # e.g. https://siteforge.agency/checkout
 ADMIN_PASSWORD=            # Admin dashboard login
+PADDLE_WEBHOOK_SECRET=     # Paddle webhook signature verification
+PADDLE_EXTRA_PAGES_PRICE_ID= # Paddle price ID for the "Additional Pages" upsell
 ```
 
 ## Useful Scripts

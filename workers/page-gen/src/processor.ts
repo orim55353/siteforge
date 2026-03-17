@@ -1,6 +1,7 @@
 import type { Job } from "bullmq";
 import type { PageGenJobData, PageGenJobResult } from "@lead-gen/queue";
 import { prisma } from "@lead-gen/db";
+import type { BusinessInput } from "@lead-gen/ai";
 import { generatePage } from "./ai-content.js";
 import { uploadToSupabase } from "./storage.js";
 
@@ -23,7 +24,7 @@ export async function processPageGenJob(
 
   // ── Generate full HTML page via Claude CLI ──
   await job.log("Calling Claude CLI to generate full HTML page...");
-  const html = await generatePage(business);
+  const html = await generatePage(business as unknown as BusinessInput);
   await job.log(`HTML generated (${html.length} bytes)`);
 
   // ── Upload to Supabase Storage ──

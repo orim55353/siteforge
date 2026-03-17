@@ -4,8 +4,8 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")      // PgBouncer on port 6543
-  directUrl = env("DIRECT_URL")        // Direct connection on port 5432 (migrations only)
+  url       = env("DATABASE_URL") // PgBouncer on port 6543
+  directUrl = env("DIRECT_URL") // Direct connection on port 5432 (migrations only)
 }
 
 // ─── Enums ───────────────────────────────────────────────────
@@ -45,21 +45,52 @@ enum EmailEventType {
   unsubscribed
 }
 
+enum OrderStatus {
+  pending
+  fulfilled
+  refunded
+}
+
+enum ProductType {
+  website
+  extra_pages
+  custom_domain
+  online_booking
+}
+
+enum BillingType {
+  one_time
+  recurring
+}
+
+enum SubscriptionStatus {
+  active
+  paused
+  cancelled
+}
+
+enum PageType {
+  landing
+  about
+  services
+  gallery
+}
+
 // ─── Markets ─────────────────────────────────────────────────
 
 model Market {
   id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name             String   // e.g. "Dentists in Austin, TX"
-  industry         String   // e.g. "dentist"
+  name             String // e.g. "Dentists in Austin, TX"
+  industry         String // e.g. "dentist"
   city             String
   state            String
   country          String   @default("US")
   active           Boolean  @default(true)
   opportunityScore Int?     @map("opportunity_score") // From data.md (0-100)
-  marketSize       String?  @map("market_size")       // High, Moderate, Low
-  digitalGap       String?  @map("digital_gap")       // High, Moderate, Low
-  notes            String?                             // Opportunity notes from data.md
-  sourceFile       String?  @map("source_file")       // e.g. "data.md" — tracks origin
+  marketSize       String?  @map("market_size") // High, Moderate, Low
+  digitalGap       String?  @map("digital_gap") // High, Moderate, Low
+  notes            String? // Opportunity notes from data.md
+  sourceFile       String?  @map("source_file") // e.g. "data.md" — tracks origin
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 
@@ -73,66 +104,67 @@ model Market {
 // ─── Businesses ──────────────────────────────────────────────
 
 model Business {
-  id              String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  marketId        String         @map("market_id") @db.Uuid
-  status          BusinessStatus @default(discovered)
+  id       String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  marketId String         @map("market_id") @db.Uuid
+  status   BusinessStatus @default(discovered)
 
   // Discovery fields
-  googlePlaceId   String?        @unique @map("google_place_id")
-  googleDataId    String?        @map("google_data_id")
-  googleMapsUrl   String?        @map("google_maps_url")
-  name            String
-  phone           String?
-  email           String?
-  website         String?
-  address         String?
-  city            String?
-  state           String?
-  zipCode         String?        @map("zip_code")
-  latitude        Float?
-  longitude       Float?
-  googleRating    Float?         @map("google_rating")
-  reviewCount     Int?           @map("review_count") @default(0)
-  categories      String[]       @default([])
-  reviews         Json?          // Array of { author, rating, text, date, isLocalGuide }
+  googlePlaceId String?  @unique @map("google_place_id")
+  googleDataId  String?  @map("google_data_id")
+  googleMapsUrl String?  @map("google_maps_url")
+  name          String
+  phone         String?
+  email         String?
+  website       String?
+  address       String?
+  city          String?
+  state         String?
+  zipCode       String?  @map("zip_code")
+  latitude      Float?
+  longitude     Float?
+  googleRating  Float?   @map("google_rating")
+  reviewCount   Int?     @default(0) @map("review_count")
+  categories    String[] @default([])
+  reviews       Json? // Array of { author, rating, text, date, isLocalGuide }
 
   // Owner details
-  ownerName       String?        @map("owner_name")
-  ownerEmail      String?        @map("owner_email")
-  ownerPhone      String?        @map("owner_phone")
-  ownerTitle      String?        @map("owner_title")  // e.g. "Owner", "Manager", "Founder"
+  ownerName  String? @map("owner_name")
+  ownerEmail String? @map("owner_email")
+  ownerPhone String? @map("owner_phone")
+  ownerTitle String? @map("owner_title") // e.g. "Owner", "Manager", "Founder"
 
   // Enrichment fields
-  hasWebsite      Boolean?       @map("has_website")
-  websiteScore    Int?           @map("website_score")    // 0-100
-  hasSsl          Boolean?       @map("has_ssl")
-  isMobileFriendly Boolean?     @map("is_mobile_friendly")
-  hasOnlineBooking Boolean?     @map("has_online_booking")
-  techStack       String[]       @default([]) @map("tech_stack")
-  socialProfiles  Json?          @map("social_profiles")  // { facebook, instagram, etc. }
-  photos          Json?          // Array of { filename, publicUrl, sourceUrl, sizeBytes }
+  hasWebsite       Boolean? @map("has_website")
+  websiteScore     Int?     @map("website_score") // 0-100
+  hasSsl           Boolean? @map("has_ssl")
+  isMobileFriendly Boolean? @map("is_mobile_friendly")
+  hasOnlineBooking Boolean? @map("has_online_booking")
+  techStack        String[] @default([]) @map("tech_stack")
+  socialProfiles   Json?    @map("social_profiles") // { facebook, instagram, etc. }
+  photos           Json? // Array of { filename, publicUrl, sourceUrl, sizeBytes }
 
   // AI enrichment (Claude analysis of website)
-  aiInsights      Json?          @map("ai_insights")  // { designQuality, contentQuality, services, uniqueSellingPoints, painPoints, outreachAngles, summary }
+  aiInsights Json? @map("ai_insights") // { designQuality, contentQuality, services, uniqueSellingPoints, painPoints, outreachAngles, summary }
 
   // Scoring
-  score           Int?           // 0-100 composite score
-  scoreBreakdown  Json?          @map("score_breakdown")
+  score          Int? // 0-100 composite score
+  scoreBreakdown Json? @map("score_breakdown")
 
   // Timezone for scheduling
-  timezone        String?        @default("America/Chicago")
+  timezone String? @default("America/Chicago")
 
   // Approval gate
-  approvedAt      DateTime?      @map("approved_at")
-  approvedBy      String?        @map("approved_by")
+  approvedAt DateTime? @map("approved_at")
+  approvedBy String?   @map("approved_by")
 
-  createdAt       DateTime       @default(now()) @map("created_at")
-  updatedAt       DateTime       @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  market           Market             @relation(fields: [marketId], references: [id])
+  market           Market            @relation(fields: [marketId], references: [id])
   previewPages     PreviewPage[]
   intentPages      IntentPage[]
   outreachMessages OutreachMessage[]
+  customers        Customer[]
 
   @@index([status])
   @@index([marketId, status])
@@ -144,18 +176,20 @@ model Business {
 // ─── Preview Pages (draft, before approval) ──────────────────
 
 model PreviewPage {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  businessId  String   @map("business_id") @db.Uuid
-  slug        String   @unique
-  templateId  String   @map("template_id")
-  aiContent   Json     @map("ai_content")        // AI-generated JSON content
-  htmlUrl     String?  @map("html_url")           // Supabase Storage URL
-  previewUrl  String?  @map("preview_url")        // draft.domain.com/slug
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId String   @map("business_id") @db.Uuid
+  slug       String // e.g. "joes-plumbing"
+  pageType   PageType @default(landing) @map("page_type")
+  templateId String   @map("template_id")
+  aiContent  Json     @map("ai_content") // AI-generated JSON content
+  htmlUrl    String?  @map("html_url") // R2 storage URL
+  previewUrl String?  @map("preview_url") // draft.domain.com/slug/[pageType]
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
 
   business Business @relation(fields: [businessId], references: [id])
 
+  @@unique([slug, pageType])
   @@index([businessId])
   @@map("preview_pages")
 }
@@ -163,19 +197,21 @@ model PreviewPage {
 // ─── Intent Pages (deployed, live) ───────────────────────────
 
 model IntentPage {
-  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  businessId    String   @map("business_id") @db.Uuid
-  slug          String   @unique
-  templateId    String   @map("template_id")
-  aiContent     Json     @map("ai_content")
-  htmlUrl       String   @map("html_url")        // Supabase Storage URL
-  deployedUrl   String   @map("deployed_url")    // Cloudflare Pages URL
-  deployedAt    DateTime @default(now()) @map("deployed_at")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId  String   @map("business_id") @db.Uuid
+  slug        String // e.g. "joes-plumbing"
+  pageType    PageType @default(landing) @map("page_type")
+  templateId  String   @map("template_id")
+  aiContent   Json     @map("ai_content")
+  htmlUrl     String   @map("html_url") // R2 storage URL
+  deployedUrl String   @map("deployed_url") // Cloudflare Worker URL
+  deployedAt  DateTime @default(now()) @map("deployed_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
   business Business @relation(fields: [businessId], references: [id])
 
+  @@unique([slug, pageType])
   @@index([businessId])
   @@map("intent_pages")
 }
@@ -183,16 +219,16 @@ model IntentPage {
 // ─── Campaigns ───────────────────────────────────────────────
 
 model Campaign {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name        String
-  industry    String?
-  templateId  String?  @map("template_id")
-  subjectLine String   @map("subject_line")
-  bodyTemplate String  @map("body_template")     // Handlebars template for email body
-  active      Boolean  @default(true)
-  maxPerDay   Int      @default(500) @map("max_per_day")
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  industry     String?
+  templateId   String?  @map("template_id")
+  subjectLine  String   @map("subject_line")
+  bodyTemplate String   @map("body_template") // Handlebars template for email body
+  active       Boolean  @default(true)
+  maxPerDay    Int      @default(500) @map("max_per_day")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
 
   outreachMessages OutreachMessage[]
 
@@ -202,25 +238,25 @@ model Campaign {
 // ─── Outreach Messages ───────────────────────────────────────
 
 model OutreachMessage {
-  id            String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  businessId    String               @map("business_id") @db.Uuid
-  campaignId    String               @map("campaign_id") @db.Uuid
-  status        OutreachMessageStatus @default(scheduled)
+  id         String                @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId String                @map("business_id") @db.Uuid
+  campaignId String                @map("campaign_id") @db.Uuid
+  status     OutreachMessageStatus @default(scheduled)
 
-  toEmail       String               @map("to_email")
-  fromEmail     String               @map("from_email")
-  subject       String
-  bodyHtml      String               @map("body_html")
-  resendId      String?              @map("resend_id")   // Resend message ID
+  toEmail   String  @map("to_email")
+  fromEmail String  @map("from_email")
+  subject   String
+  bodyHtml  String  @map("body_html")
+  resendId  String? @map("resend_id") // Resend message ID
 
-  scheduledFor  DateTime             @map("scheduled_for")
-  sentAt        DateTime?            @map("sent_at")
+  scheduledFor DateTime  @map("scheduled_for")
+  sentAt       DateTime? @map("sent_at")
 
-  createdAt     DateTime             @default(now()) @map("created_at")
-  updatedAt     DateTime             @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
-  business    Business      @relation(fields: [businessId], references: [id])
-  campaign    Campaign      @relation(fields: [campaignId], references: [id])
+  business    Business     @relation(fields: [businessId], references: [id])
+  campaign    Campaign     @relation(fields: [campaignId], references: [id])
   emailEvents EmailEvent[]
   replies     Reply[]
 
@@ -234,12 +270,12 @@ model OutreachMessage {
 // ─── Email Events (webhook-driven) ──────────────────────────
 
 model EmailEvent {
-  id               String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  outreachMessageId String       @map("outreach_message_id") @db.Uuid
-  type             EmailEventType
-  payload          Json?          // Raw webhook payload
-  occurredAt       DateTime       @map("occurred_at")
-  createdAt        DateTime       @default(now()) @map("created_at")
+  id                String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outreachMessageId String         @map("outreach_message_id") @db.Uuid
+  type              EmailEventType
+  payload           Json? // Raw webhook payload
+  occurredAt        DateTime       @map("occurred_at")
+  createdAt         DateTime       @default(now()) @map("created_at")
 
   outreachMessage OutreachMessage @relation(fields: [outreachMessageId], references: [id])
 
@@ -251,14 +287,14 @@ model EmailEvent {
 // ─── Replies ─────────────────────────────────────────────────
 
 model Reply {
-  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  outreachMessageId String  @map("outreach_message_id") @db.Uuid
-  fromEmail        String   @map("from_email")
-  subject          String?
-  bodyText         String?  @map("body_text")
-  bodyHtml         String?  @map("body_html")
-  forwardedAt      DateTime? @map("forwarded_at")   // When forwarded to founder
-  createdAt        DateTime @default(now()) @map("created_at")
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  outreachMessageId String    @map("outreach_message_id") @db.Uuid
+  fromEmail         String    @map("from_email")
+  subject           String?
+  bodyText          String?   @map("body_text")
+  bodyHtml          String?   @map("body_html")
+  forwardedAt       DateTime? @map("forwarded_at") // When forwarded to founder
+  createdAt         DateTime  @default(now()) @map("created_at")
 
   outreachMessage OutreachMessage @relation(fields: [outreachMessageId], references: [id])
 
@@ -269,28 +305,28 @@ model Reply {
 // ─── Market Scans (per-search analytics) ─────────────────────
 
 model MarketScan {
-  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  industry        String                    // e.g. "taqueria"
-  city            String                    // e.g. "Houston"
-  state           String                    // e.g. "TX"
-  query           String   @unique          // e.g. "taqueria in Houston, TX"
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  industry String // e.g. "taqueria"
+  city     String // e.g. "Houston"
+  state    String // e.g. "TX"
+  query    String @unique // e.g. "taqueria in Houston, TX"
 
   // Raw results (API cache — avoids re-fetching)
-  rawResults      Json     @map("raw_results")
+  rawResults Json @map("raw_results")
 
   // Aggregated stats
-  totalResults    Int      @map("total_results")
-  withWebsite     Int      @map("with_website")
-  withoutWebsite  Int      @map("without_website")
-  qualifying      Int                       // no website + 4.0+ rating + 50+ reviews
-  avgRating       Float    @map("avg_rating")
-  avgReviews      Float    @map("avg_reviews")
+  totalResults   Int   @map("total_results")
+  withWebsite    Int   @map("with_website")
+  withoutWebsite Int   @map("without_website")
+  qualifying     Int // no website + 4.0+ rating + 50+ reviews
+  avgRating      Float @map("avg_rating")
+  avgReviews     Float @map("avg_reviews")
 
   // Top qualifying businesses snapshot (name, rating, reviews)
-  topBusinesses   Json     @map("top_businesses")
+  topBusinesses Json @map("top_businesses")
 
-  scannedAt       DateTime @default(now()) @map("scanned_at")
-  updatedAt       DateTime @updatedAt @map("updated_at")
+  scannedAt DateTime @default(now()) @map("scanned_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
 
   @@index([industry, city, state])
   @@map("market_scans")
@@ -299,24 +335,24 @@ model MarketScan {
 // ─── Page Views (landing page analytics) ─────────────────────
 
 model PageView {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  slug        String                          // Landing page slug
-  viewedAt    DateTime @default(now()) @map("viewed_at")
+  id       String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  slug     String // Landing page slug
+  viewedAt DateTime @default(now()) @map("viewed_at")
 
   // Geo (from Cloudflare cf object — free, no external API needed)
-  country     String?                         // ISO country code (e.g. "US")
-  city        String?
-  region      String?                         // State/province
-  latitude    Float?
-  longitude   Float?
+  country   String? // ISO country code (e.g. "US")
+  city      String?
+  region    String? // State/province
+  latitude  Float?
+  longitude Float?
 
   // Client info
-  userAgent   String?  @map("user_agent")
-  referer     String?                         // HTTP Referer header
-  deviceType  String?  @map("device_type")    // mobile, tablet, desktop
+  userAgent  String? @map("user_agent")
+  referer    String? // HTTP Referer header
+  deviceType String? @map("device_type") // mobile, tablet, desktop
 
   // Dedup — fingerprint so we can count uniques
-  visitorHash String?  @map("visitor_hash")   // Hash of IP + UA (no raw IP stored)
+  visitorHash String? @map("visitor_hash") // Hash of IP + UA (no raw IP stored)
 
   @@index([slug])
   @@index([slug, viewedAt])
@@ -327,16 +363,16 @@ model PageView {
 // ─── Checkout Events (funnel analytics) ──────────────────────
 
 model CheckoutEvent {
-  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  sessionId   String   @map("session_id")          // Random ID per checkout visit
-  event       String                                // checkout_viewed, upsell_toggled, form_started, field_completed, payment_attempted, payment_success, page_abandoned
-  slug        String?                               // Business slug (from URL params)
-  business    String?                               // Business name (from URL params)
-  metadata    Json?                                 // Extra data (e.g. { field: "email" }, { upsell: "domain", enabled: true })
-  deviceType  String?  @map("device_type")          // mobile, tablet, desktop
-  userAgent   String?  @map("user_agent")
-  referer     String?
-  occurredAt  DateTime @default(now()) @map("occurred_at")
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId  String   @map("session_id") // Random ID per checkout visit
+  event      String // checkout_viewed, upsell_toggled, form_started, field_completed, payment_attempted, payment_success, page_abandoned
+  slug       String? // Business slug (from URL params)
+  business   String? // Business name (from URL params)
+  metadata   Json? // Extra data (e.g. { field: "email" }, { upsell: "domain", enabled: true })
+  deviceType String?  @map("device_type") // mobile, tablet, desktop
+  userAgent  String?  @map("user_agent")
+  referer    String?
+  occurredAt DateTime @default(now()) @map("occurred_at")
 
   @@index([sessionId])
   @@index([event])
@@ -345,13 +381,92 @@ model CheckoutEvent {
   @@map("checkout_events")
 }
 
+// ─── Customers (people who paid) ─────────────────────────────
+
+model Customer {
+  id               String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  businessId       String?  @map("business_id") @db.Uuid
+  paddleCustomerId String?  @unique @map("paddle_customer_id") // Paddle ctm_ ID
+  email            String   @unique
+  name             String
+  phone            String?
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  business      Business?      @relation(fields: [businessId], references: [id])
+  orders        Order[]
+  subscriptions Subscription[]
+
+  @@index([businessId])
+  @@map("customers")
+}
+
+// ─── Orders (one per checkout completion) ────────────────────
+
+model Order {
+  id                  String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId          String      @map("customer_id") @db.Uuid
+  paddleTransactionId String?     @unique @map("paddle_transaction_id") // Paddle txn_ ID
+  status              OrderStatus @default(pending)
+  totalAmount         Int // Amount in cents (e.g. 19900 = $199.00)
+  currency            String      @default("USD")
+  metadata            Json? // Slug, upsells, custom data from checkout
+  createdAt           DateTime    @default(now()) @map("created_at")
+  updatedAt           DateTime    @updatedAt @map("updated_at")
+
+  customer Customer    @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
+
+  @@index([customerId])
+  @@index([status])
+  @@map("orders")
+}
+
+// ─── Order Items (line items per order) ──────────────────────
+
+model OrderItem {
+  id            String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  orderId       String      @map("order_id") @db.Uuid
+  productType   ProductType @map("product_type")
+  paddlePriceId String      @map("paddle_price_id") // Paddle pri_ ID
+  amount        Int // Amount in cents
+  billingType   BillingType @map("billing_type")
+  fulfilledAt   DateTime?   @map("fulfilled_at") // When this item was delivered
+  createdAt     DateTime    @default(now()) @map("created_at")
+
+  order Order @relation(fields: [orderId], references: [id])
+
+  @@index([orderId])
+  @@map("order_items")
+}
+
+// ─── Subscriptions (recurring upsells) ───────────────────────
+
+model Subscription {
+  id                   String             @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customerId           String             @map("customer_id") @db.Uuid
+  paddleSubscriptionId String?            @unique @map("paddle_subscription_id") // Paddle sub_ ID
+  productType          ProductType        @map("product_type")
+  status               SubscriptionStatus @default(active)
+  currentPeriodEnd     DateTime?          @map("current_period_end")
+  cancelledAt          DateTime?          @map("cancelled_at")
+  createdAt            DateTime           @default(now()) @map("created_at")
+  updatedAt            DateTime           @updatedAt @map("updated_at")
+
+  customer Customer @relation(fields: [customerId], references: [id])
+
+  @@index([customerId])
+  @@index([status])
+  @@map("subscriptions")
+}
+
 // ─── Suppression List ────────────────────────────────────────
 
 model SuppressionEntry {
   id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   email     String   @unique
-  reason    String   // bounced, unsubscribed, complained, manual
-  source    String?  // Which system added it
+  reason    String // bounced, unsubscribed, complained, manual
+  source    String? // Which system added it
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("suppression_list")

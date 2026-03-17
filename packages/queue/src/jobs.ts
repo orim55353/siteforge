@@ -45,6 +45,12 @@ export interface EmailJobData {
   outreachMessageId: string;
 }
 
+/** Extra pages worker: generate additional pages (about, services, gallery) */
+export interface ExtraPagesJobData {
+  businessId: string;
+  slug: string;
+}
+
 /** Reply ingestion: process an inbound email */
 export interface ReplyIngestionJobData {
   fromEmail: string;
@@ -91,6 +97,11 @@ export interface SchedulerJobResult {
 export interface EmailJobResult {
   outreachMessageId: string;
   resendId: string;
+}
+
+export interface ExtraPagesJobResult {
+  previewPageIds: string[];
+  deployedUrls: string[];
 }
 
 export interface ReplyIngestionJobResult {

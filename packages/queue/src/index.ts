@@ -12,6 +12,7 @@ export {
   deployQueue,
   schedulerQueue,
   emailQueue,
+  extraPagesQueue,
   replyIngestionQueue,
   allQueues,
 } from "./queues.js";
@@ -25,6 +26,7 @@ export type {
   DeployJobData,
   SchedulerJobData,
   EmailJobData,
+  ExtraPagesJobData,
   ReplyIngestionJobData,
   DiscoveryJobResult,
   EnrichmentJobResult,
@@ -33,6 +35,7 @@ export type {
   DeployJobResult,
   SchedulerJobResult,
   EmailJobResult,
+  ExtraPagesJobResult,
   ReplyIngestionJobResult,
 } from "./jobs.js";
 
