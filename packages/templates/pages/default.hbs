@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{seoMeta.title}}</title>
+  <meta name="description" content="{{seoMeta.description}}">
+  <meta name="keywords" content="{{#each seoMeta.keywords}}{{this}}{{#unless @last}}, {{/unless}}{{/each}}">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #1a1a2e; line-height: 1.6; }
+    .hero { background: linear-gradient(135deg, #0f3460 0%, #16213e 100%); color: #fff; padding: 4rem 2rem; text-align: center; }
+    .hero h1 { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .hero p { font-size: 1.25rem; opacity: 0.9; margin-bottom: 2rem; }
+    .hero .cta { display: inline-block; background: #e94560; color: #fff; padding: 0.875rem 2rem; border-radius: 6px; text-decoration: none; font-weight: 600; font-size: 1.1rem; }
+    .hero .cta:hover { background: #c73e54; }
+    .container { max-width: 960px; margin: 0 auto; padding: 3rem 2rem; }
+    .services h2, .faq h2 { font-size: 2rem; margin-bottom: 1.5rem; text-align: center; }
+    .services .intro { text-align: center; margin-bottom: 2rem; color: #555; }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; }
+    .service-card { background: #f8f9fa; border-radius: 8px; padding: 1.5rem; border: 1px solid #e9ecef; }
+    .service-card h3 { margin-bottom: 0.5rem; color: #0f3460; }
+    .service-card p { color: #555; font-size: 0.95rem; }
+    .faq { background: #f8f9fa; }
+    .faq-item { border-bottom: 1px solid #e9ecef; padding: 1.25rem 0; }
+    .faq-item:last-child { border-bottom: none; }
+    .faq-item h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: #0f3460; }
+    .faq-item p { color: #555; }
+    .contact { text-align: center; }
+    .contact h2 { font-size: 2rem; margin-bottom: 1rem; }
+    .contact-info { color: #555; }
+    .contact-info a { color: #0f3460; }
+    footer { background: #16213e; color: #aaa; text-align: center; padding: 2rem; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <h1>{{headline.title}}</h1>
+    <p>{{headline.subtitle}}</p>
+    {{#if business.phone}}
+      <a href="tel:{{business.phone}}" class="cta">{{headline.ctaText}}</a>
+    {{else}}
+      <span class="cta">{{headline.ctaText}}</span>
+    {{/if}}
+  </section>
+
+  <section class="container services">
+    <h2>Our Services</h2>
+    <p class="intro">{{services.intro}}</p>
+    <div class="services-grid">
+      {{#each services.items}}
+        <div class="service-card">
+          <h3>{{this.name}}</h3>
+          <p>{{this.description}}</p>
+        </div>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="faq">
+    <div class="container">
+      <h2>Frequently Asked Questions</h2>
+      {{#each faq.items}}
+        <div class="faq-item">
+          <h3>{{this.question}}</h3>
+          <p>{{this.answer}}</p>
+        </div>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="container contact">
+    <h2>Get in Touch with {{business.name}}</h2>
+    <div class="contact-info">
+      {{#if business.phone}}<p>Phone: <a href="tel:{{business.phone}}">{{business.phone}}</a></p>{{/if}}
+      {{#if business.email}}<p>Email: <a href="mailto:{{business.email}}">{{business.email}}</a></p>{{/if}}
+      {{#if business.address}}<p>Address: {{business.address}}{{#if business.city}}, {{business.city}}{{/if}}{{#if business.state}}, {{business.state}}{{/if}}</p>{{/if}}
+      {{#if business.googleRating}}<p>Google Rating: {{business.googleRating}} / 5 ({{business.reviewCount}} reviews)</p>{{/if}}
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; {{business.name}} — All rights reserved</p>
+  </footer>
+</body>
+</html>

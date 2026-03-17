@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.turbo/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+.next/
+pasta-loco-site/
+data.md
+*.dylib.node
+supabase/.temp/
+.claude/settings.local.json

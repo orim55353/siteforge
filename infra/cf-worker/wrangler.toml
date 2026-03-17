@@ -1,0 +1,12 @@
+name = "lead-pages-router"
+main = "src/index.ts"
+compatibility_date = "2024-09-25"
+compatibility_flags = ["nodejs_compat"]
+
+[[r2_buckets]]
+binding = "PAGES_BUCKET"
+bucket_name = "landing-pages"
+
+# SUPABASE_URL and SUPABASE_SERVICE_KEY must be set as secrets:
+#   npx wrangler secret put SUPABASE_URL
+#   npx wrangler secret put SUPABASE_SERVICE_KEY

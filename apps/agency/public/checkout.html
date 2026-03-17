@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claim Your Website - SiteForge</title>
+  <meta name="description" content="Your custom-built website is ready. Claim it today and start getting more phone calls. No contracts, cancel anytime." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Claim Your Website - SiteForge" />
+  <meta property="og:description" content="Your custom-built website is ready. Claim it and start getting more phone calls. No contracts, cancel anytime." />
+  <meta property="og:url" content="https://siteforge.agency/checkout" />
+  <meta property="og:site_name" content="SiteForge" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Claim Your Website - SiteForge" />
+  <meta name="twitter:description" content="Your custom-built website is ready. Claim it and start getting more phone calls. No contracts, cancel anytime." />
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f172a'/%3E%3Crect x='8' y='8' width='14' height='7' rx='2' fill='%23F59E0B'/%3E%3Crect x='13' y='14' width='4' height='12' rx='2' fill='white' opacity='0.85'/%3E%3Ccircle cx='25' cy='10' r='1.5' fill='white' opacity='0.6'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50:'#EEF2FF',100:'#E0E7FF',200:'#C7D2FE',300:'#A5B4FC',400:'#818CF8',500:'#6366F1',600:'#4F46E5',700:'#4338CA',800:'#3730A3',900:'#312E81' },
+            accent:  { 50:'#FFFBEB',100:'#FEF3C7',200:'#FDE68A',300:'#FCD34D',400:'#FBBF24',500:'#F59E0B',600:'#D97706',700:'#B45309',800:'#92400E',900:'#78350F' }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            heading: ['"Space Grotesk"', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    /* Toggle switch */
+    .toggle-track { width: 44px; height: 24px; border-radius: 12px; background: #D1D5DB; position: relative; cursor: pointer; transition: background 0.25s ease; flex-shrink: 0; }
+    .toggle-track.active { background: #4F46E5; }
+    .toggle-knob { width: 20px; height: 20px; border-radius: 50%; background: #fff; position: absolute; top: 2px; left: 2px; transition: transform 0.25s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+    .toggle-track.active .toggle-knob { transform: translateX(20px); }
+
+    /* CTA */
+    .cta-btn { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); transition: all 0.2s ease; }
+    .cta-btn:hover { transform: scale(1.015); box-shadow: 0 8px 24px rgba(245,158,11,0.35); }
+
+    /* Confetti */
+    @keyframes confetti-fall {
+      0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    .confetti-piece { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 100; animation: confetti-fall linear forwards; pointer-events: none; }
+
+    /* Summary line item animation */
+    .summary-item-enter { animation: slideIn 0.3s ease forwards; }
+    @keyframes slideIn { from { opacity: 0; max-height: 0; transform: translateX(10px); } to { opacity: 1; max-height: 40px; transform: translateX(0); } }
+
+    /* Modal */
+    .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+    .modal-enter { animation: modalIn 0.3s ease; }
+    @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+    /* Spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 20px; height: 20px; border: 3px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.6s linear infinite; }
+
+    /* Input focus ring */
+    input:focus { outline: none; box-shadow: 0 0 0 3px rgba(79,70,229,0.15); border-color: #4F46E5; }
+
+    /* Mobile summary toggle */
+    .mobile-summary-content { max-height: 0; overflow: hidden; transition: max-height 0.35s ease; }
+    .mobile-summary-content.open { max-height: 600px; }
+
+    /* Error message */
+    .field-error { color: #DC2626; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
+    .field-error.visible { display: block; }
+
+    /* Success timeline */
+    .timeline-step { position: relative; padding-left: 2.5rem; }
+    .timeline-step::before { content: ''; position: absolute; left: 11px; top: 28px; bottom: -8px; width: 2px; background: #E5E7EB; }
+    .timeline-step:last-child::before { display: none; }
+    .timeline-dot { width: 24px; height: 24px; border-radius: 50%; background: #4F46E5; position: absolute; left: 0; top: 4px; display: flex; align-items: center; justify-content: center; }
+
+    /* Savings badge pulse */
+    @keyframes gentle-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.85; } }
+    .savings-badge { animation: gentle-pulse 3s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-gray-50 font-sans text-gray-800 antialiased">
+
+  <!-- Mobile Order Summary (collapsible) -->
+  <div id="mobileSummary" class="lg:hidden bg-white border-b border-gray-200 sticky top-0 z-40">
+    <button id="mobileSummaryToggle" class="w-full flex items-center justify-between px-4 py-3" onclick="toggleMobileSummary()">
+      <span class="flex items-center gap-2 text-sm font-medium text-primary-600">
+        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+        Show order summary
+      </span>
+      <span class="flex items-center gap-2">
+        <span id="mobileTotalBadge" class="font-bold text-gray-900">$199</span>
+        <i data-lucide="chevron-down" class="w-4 h-4 text-gray-500 transition-transform" id="mobileSummaryChevron"></i>
+      </span>
+    </button>
+    <div id="mobileSummaryContent" class="mobile-summary-content px-4">
+      <div id="mobileSummaryItems" class="pb-4"></div>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div id="mainContent" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
+    <div class="flex flex-col lg:flex-row gap-8 lg:gap-12">
+
+      <!-- LEFT COLUMN: Checkout Form -->
+      <div class="w-full lg:w-[60%]" id="formColumn">
+
+        <!-- Header -->
+        <a href="index.html" class="inline-flex items-center gap-2 mb-8 group">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="10" fill="#0f172a"/>
+            <rect x="11" y="12" width="18" height="10" rx="3" fill="#F59E0B"/>
+            <rect x="18" y="20" width="4" height="16" rx="2" fill="white"/>
+            <circle cx="32" cy="14" r="2" fill="white" opacity="0.6"/>
+            <circle cx="35" cy="19" r="1.2" fill="white" opacity="0.3"/>
+          </svg>
+          <span class="font-heading font-bold text-xl text-gray-900 group-hover:text-primary-600 transition-colors">SiteForge</span>
+        </a>
+
+        <h1 class="font-heading text-2xl sm:text-3xl font-bold text-gray-900 mb-1">Claim your website. Start getting calls.</h1>
+        <p class="text-lg text-gray-500 mb-2">Your custom-built site is ready to go live today.</p>
+
+        <!-- Price anchor -->
+        <div class="bg-green-50 border border-green-200 rounded-lg px-4 py-3 mb-8 flex items-start gap-2">
+          <i data-lucide="badge-check" class="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5"></i>
+          <p class="text-sm text-green-800">
+            Most web designers charge <strong>$3,000 - $5,000</strong> and take 6-8 weeks.
+            We already built yours — it's ready to go live today.
+          </p>
+        </div>
+
+        <!-- STEP 1: Your Website -->
+        <div class="mb-10">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-primary-600 text-white text-sm font-bold">1</span>
+            <h2 class="font-heading text-lg font-semibold text-gray-900">Your Website</h2>
+          </div>
+
+          <div class="bg-white border-2 border-primary-200 rounded-xl px-5 py-4">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <p class="font-heading font-semibold text-gray-900 mb-1">Custom-Built Website</p>
+                <ul class="text-sm text-gray-600 space-y-1">
+                  <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-600"></i> Mobile-friendly — works when customers find you on their phone</li>
+                  <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-600"></i> Click-to-call button so customers reach you instantly</li>
+                  <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-600"></i> Shows up when people search for you online</li>
+                  <li class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-green-600"></i> Hosting, security, and updates all included</li>
+                </ul>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p class="text-2xl font-bold text-gray-900">$199</p>
+                <p class="text-sm text-gray-500">one-time payment</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optional Add-ons -->
+        <div class="mb-10">
+          <div class="flex items-center gap-2 mb-1">
+            <h3 class="font-heading text-base font-semibold text-gray-900">Make it even better <span class="text-gray-400 font-normal">(optional)</span></h3>
+          </div>
+          <p class="text-sm text-gray-500 mb-4">Most business owners add at least one. You can always add these later too.</p>
+
+          <div class="space-y-3">
+            <!-- Domain -->
+            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3.5 hover:border-gray-300 transition-colors">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="toggle-track" data-upsell="domain" onclick="toggleUpsell('domain')"><div class="toggle-knob"></div></div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-900">Custom Domain</p>
+                  <p class="text-xs text-gray-500 truncate">yourbusiness.com instead of a subdomain — looks professional</p>
+                </div>
+              </div>
+              <span class="text-xs font-semibold text-primary-600 bg-primary-50 rounded-full px-2.5 py-1 whitespace-nowrap ml-3">+$10/mo</span>
+            </div>
+            <!-- Pages -->
+            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3.5 hover:border-gray-300 transition-colors">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="toggle-track" data-upsell="pages" onclick="toggleUpsell('pages')"><div class="toggle-knob"></div></div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-900">Additional Pages (3)</p>
+                  <p class="text-xs text-gray-500 truncate">About Us, Services, and Gallery — show customers everything you do</p>
+                </div>
+              </div>
+              <span class="text-xs font-semibold text-primary-600 bg-primary-50 rounded-full px-2.5 py-1 whitespace-nowrap ml-3">$29 one-time</span>
+            </div>
+            <!-- Booking -->
+            <div class="flex items-center justify-between bg-white border border-gray-200 rounded-xl px-4 py-3.5 hover:border-gray-300 transition-colors">
+              <div class="flex items-center gap-3 min-w-0">
+                <div class="toggle-track" data-upsell="booking" onclick="toggleUpsell('booking')"><div class="toggle-knob"></div></div>
+                <div class="min-w-0">
+                  <p class="text-sm font-medium text-gray-900">Online Booking</p>
+                  <p class="text-xs text-gray-500 truncate">Customers book appointments right from your site — no more phone tag</p>
+                </div>
+              </div>
+              <span class="text-xs font-semibold text-primary-600 bg-primary-50 rounded-full px-2.5 py-1 whitespace-nowrap ml-3">+$19/mo</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: Your Details -->
+        <div class="mb-10">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-primary-600 text-white text-sm font-bold">2</span>
+            <h2 class="font-heading text-lg font-semibold text-gray-900">Your Details</h2>
+          </div>
+
+          <div class="space-y-4">
+            <div>
+              <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full name</label>
+              <input type="text" id="fullName" required placeholder="Jane Smith" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all" />
+              <p class="field-error" id="fullNameError">Please enter your full name</p>
+            </div>
+            <div>
+              <label for="businessName" class="block text-sm font-medium text-gray-700 mb-1">Business name</label>
+              <input type="text" id="businessName" required placeholder="Your Business Name" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all" />
+              <p class="field-error" id="businessNameError">Please enter your business name</p>
+            </div>
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email address</label>
+              <input type="email" id="email" required placeholder="jane@example.com" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all" />
+              <p class="field-error" id="emailError">Please enter a valid email address</p>
+            </div>
+            <div>
+              <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone number</label>
+              <input type="tel" id="phone" required placeholder="(555) 123-4567" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all" />
+              <p class="field-error" id="phoneError">Please enter your phone number</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 3: Payment -->
+        <div class="mb-8">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-primary-600 text-white text-sm font-bold">3</span>
+            <h2 class="font-heading text-lg font-semibold text-gray-900">Payment</h2>
+          </div>
+
+          <div class="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Card number</label>
+              <div class="relative">
+                <i data-lucide="credit-card" class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19" class="w-full border border-gray-300 rounded-lg pl-10 pr-4 py-2.5 text-sm transition-all" />
+              </div>
+              <p class="field-error" id="cardNumberError">Please enter your card number</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Expiry</label>
+                <input type="text" id="cardExpiry" placeholder="MM / YY" maxlength="7" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all" />
+                <p class="field-error" id="cardExpiryError">Enter a valid expiry</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">CVC</label>
+                <input type="text" id="cardCvc" placeholder="123" maxlength="4" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm transition-all" />
+                <p class="field-error" id="cardCvcError">Enter CVC</p>
+              </div>
+            </div>
+            <p class="text-xs text-gray-400 flex items-center gap-1"><i data-lucide="lock" class="w-3 h-3"></i> Payments secured by Paddle</p>
+          </div>
+        </div>
+
+        <!-- Trust Badges -->
+        <div class="flex flex-wrap gap-4 mb-6 text-xs text-gray-500">
+          <span class="flex items-center gap-1.5"><i data-lucide="lock" class="w-4 h-4 text-green-600"></i> 256-bit encryption</span>
+          <span class="flex items-center gap-1.5"><i data-lucide="shield-check" class="w-4 h-4 text-green-600"></i> 30-day money-back guarantee</span>
+          <span class="flex items-center gap-1.5"><i data-lucide="circle-check" class="w-4 h-4 text-green-600"></i> No contracts — cancel anytime</span>
+        </div>
+
+        <!-- CTA Button -->
+        <button id="ctaButton" onclick="handleSubmit()" class="cta-btn w-full text-white font-bold text-lg rounded-xl py-4 px-6 flex items-center justify-center gap-2">
+          <span id="ctaText">Claim My Website — $199</span>
+          <div id="ctaSpinner" class="spinner hidden"></div>
+        </button>
+
+        <p class="text-xs text-center text-gray-400 mt-3">One-time payment. No hidden fees. 30-day money-back guarantee.</p>
+      </div>
+
+      <!-- RIGHT COLUMN: Order Summary (Desktop) -->
+      <div class="hidden lg:block w-full lg:w-[40%]">
+        <div class="sticky top-8 space-y-6">
+
+          <!-- Preview Card -->
+          <div class="bg-white border border-gray-200 rounded-xl overflow-hidden">
+            <div class="px-5 pt-5 pb-3">
+              <h3 class="font-heading text-sm font-semibold text-gray-900 mb-1">Your website preview</h3>
+              <p id="previewBusinessName" class="text-sm text-gray-500 mb-3"></p>
+            </div>
+            <!-- Browser chrome mockup -->
+            <div class="mx-5 mb-4 border border-gray-200 rounded-lg overflow-hidden">
+              <div class="bg-gray-100 px-3 py-2 flex items-center gap-2 border-b border-gray-200">
+                <div class="flex gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-red-400"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-yellow-400"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-green-400"></span>
+                </div>
+                <div class="flex-1 bg-white rounded px-2 py-0.5 text-xs text-gray-500 truncate" id="previewUrl">https://draft.siteforge.agency/</div>
+              </div>
+              <div id="previewContainer" class="relative bg-gray-100 cursor-pointer" style="overflow: hidden;">
+                <iframe id="previewIframe" title="Website preview" loading="eager" style="width: 1280px; height: 900px; transform-origin: top left; border: none; display: block; pointer-events: none;"></iframe>
+                <a id="previewOverlay" href="#" target="_blank" class="absolute inset-0 z-10" aria-label="Open full preview"></a>
+              </div>
+            </div>
+            <div class="px-5 pb-4">
+              <a href="#" id="previewLink" target="_blank" class="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1">View full preview <i data-lucide="external-link" class="w-3 h-3"></i></a>
+            </div>
+          </div>
+
+          <!-- Order Summary -->
+          <div class="bg-white border border-gray-200 rounded-xl p-5">
+            <h3 class="font-heading text-base font-semibold text-gray-900 mb-4">Order Summary</h3>
+
+            <!-- One-time charges -->
+            <div id="desktopOneTimeItems" class="space-y-2 mb-3">
+              <div class="flex justify-between text-sm">
+                <span class="text-gray-600">Custom-Built Website</span>
+                <span class="font-medium text-gray-900">$199</span>
+              </div>
+            </div>
+
+            <!-- Monthly charges (only if upsells selected) -->
+            <div id="desktopMonthlySection" class="hidden">
+              <div class="border-t border-gray-100 my-3"></div>
+              <div id="desktopMonthlyItems" class="space-y-2"></div>
+            </div>
+
+            <div class="border-t border-gray-200 pt-3 mt-3">
+              <div class="flex justify-between items-baseline" id="desktopTodayRow">
+                <span class="text-sm font-medium text-gray-700">Due today</span>
+                <span class="text-2xl font-bold text-gray-900" id="desktopTodayTotal">$199</span>
+              </div>
+              <div class="flex justify-between items-baseline mt-1 hidden" id="desktopMonthlyRow">
+                <span class="text-sm text-gray-500">Then monthly</span>
+                <span class="text-lg font-semibold text-gray-700" id="desktopMonthlyTotal">$0/mo</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Savings callout -->
+          <div class="savings-badge bg-accent-50 border border-accent-200 rounded-xl p-4 text-center">
+            <p class="text-sm text-accent-800">
+              <strong>You're saving $2,800+</strong> compared to hiring a local web designer
+            </p>
+          </div>
+
+          <!-- Below summary -->
+          <div class="text-center space-y-1">
+            <p class="text-sm text-gray-500 flex items-center justify-center gap-1"><i data-lucide="phone-call" class="w-4 h-4"></i> Built to get your phone ringing.</p>
+            <p class="text-sm text-gray-500 flex items-center justify-center gap-1"><i data-lucide="zap" class="w-4 h-4"></i> Your site goes live within 24 hours.</p>
+            <p class="text-sm text-gray-500 flex items-center justify-center gap-1"><i data-lucide="infinity" class="w-4 h-4"></i> No contracts. Cancel anytime.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success State (hidden initially) -->
+  <div id="successState" class="hidden max-w-2xl mx-auto px-4 py-16 text-center">
+    <div class="mb-8">
+      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i data-lucide="check-circle-2" class="w-10 h-10 text-green-600"></i>
+      </div>
+      <h1 class="font-heading text-3xl font-bold text-gray-900 mb-2">You're all set! Your website is going live.</h1>
+      <p class="text-gray-500">Here's what happens next:</p>
+    </div>
+
+    <!-- Timeline -->
+    <div class="text-left max-w-md mx-auto mb-12 space-y-6">
+      <div class="timeline-step">
+        <div class="timeline-dot"><i data-lucide="settings" class="w-3.5 h-3.5 text-white"></i></div>
+        <h4 class="font-heading font-semibold text-gray-900">We finalize your site</h4>
+        <p class="text-sm text-gray-500">We polish and configure everything. Takes about 24 hours.</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-dot"><i data-lucide="eye" class="w-3.5 h-3.5 text-white"></i></div>
+        <h4 class="font-heading font-semibold text-gray-900">You review &amp; approve</h4>
+        <p class="text-sm text-gray-500">You'll get a link to review and request any changes — no charge.</p>
+      </div>
+      <div class="timeline-step">
+        <div class="timeline-dot"><i data-lucide="phone-call" class="w-3.5 h-3.5 text-white"></i></div>
+        <h4 class="font-heading font-semibold text-gray-900">Start getting calls</h4>
+        <p class="text-sm text-gray-500">Your site goes live and customers start finding you online.</p>
+      </div>
+    </div>
+
+    <div class="bg-gray-50 border border-gray-200 rounded-xl p-5 max-w-md mx-auto mb-8 text-left">
+      <p class="text-sm text-gray-600">
+        <strong class="text-gray-900">Questions?</strong> Just reply to the confirmation email we sent you. A real person will get back to you within a few hours.
+      </p>
+    </div>
+
+    <a href="#" class="inline-flex items-center gap-2 text-primary-600 hover:text-primary-700 font-medium">Go to your dashboard <i data-lucide="arrow-right" class="w-4 h-4"></i></a>
+  </div>
+
+  <script>
+    // =============================================
+    // State & Pricing
+    // =============================================
+    var BASE_SETUP = 199;
+
+    var UPSELLS = {
+      domain:  { name: 'Custom Domain', price: 10, type: 'monthly' },
+      pages:   { name: 'Additional Pages (3)', price: 29, type: 'onetime' },
+      booking: { name: 'Online Booking', price: 19, type: 'monthly' }
+    };
+
+    var state = {
+      upsells: { domain: false, pages: false, booking: false },
+      mobileSummaryOpen: false
+    };
+
+    // =============================================
+    // Analytics Tracking
+    // =============================================
+    var TRACKING_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://localhost:3001/ce'
+      : 'https://api.siteforge.agency/ce';
+
+    var trackingSessionId = 'cs_' + Math.random().toString(36).substring(2) + Date.now().toString(36);
+    var trackedFields = {};
+
+    function getDeviceType() {
+      var w = window.innerWidth;
+      if (w < 768) return 'mobile';
+      if (w < 1024) return 'tablet';
+      return 'desktop';
+    }
+
+    function trackEvent(event, metadata) {
+      var params = new URLSearchParams(window.location.search);
+      var payload = {
+        sessionId: trackingSessionId,
+        event: event,
+        slug: params.get('slug') || null,
+        business: params.get('business') || null,
+        metadata: metadata || null,
+        deviceType: getDeviceType(),
+        userAgent: navigator.userAgent,
+        referer: document.referrer || null
+      };
+
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(TRACKING_URL, JSON.stringify(payload));
+      } else {
+        fetch(TRACKING_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+          keepalive: true
+        }).catch(function() {});
+      }
+    }
+
+    // Track page abandonment
+    function trackAbandonment() {
+      var totals = calculateTotals();
+      trackEvent('page_abandoned', {
+        upsells: state.upsells,
+        todayTotal: totals.today,
+        monthlyTotal: totals.monthly,
+        fieldsCompleted: Object.keys(trackedFields)
+      });
+    }
+    window.addEventListener('beforeunload', trackAbandonment);
+
+    // =============================================
+    // URL Params
+    // =============================================
+    function readUrlParams() {
+      var params = new URLSearchParams(window.location.search);
+      var slug = params.get('slug') || 'your-business';
+      var business = params.get('business') || 'Your Business';
+
+      document.getElementById('businessName').value = business;
+      document.getElementById('previewBusinessName').textContent = slug;
+      var previewUrl = 'https://draft.siteforge.agency/' + slug + '/';
+      document.getElementById('previewUrl').textContent = previewUrl;
+      document.getElementById('previewLink').href = previewUrl;
+
+      document.getElementById('previewIframe').src = previewUrl + '?preview=1';
+      document.getElementById('previewOverlay').href = previewUrl;
+    }
+
+    // =============================================
+    // Upsell Toggles
+    // =============================================
+    function toggleUpsell(key) {
+      var newUpsells = {};
+      Object.keys(state.upsells).forEach(function(k) {
+        newUpsells[k] = k === key ? !state.upsells[k] : state.upsells[k];
+      });
+      state = { upsells: newUpsells, mobileSummaryOpen: state.mobileSummaryOpen };
+
+      var track = document.querySelector('.toggle-track[data-upsell="' + key + '"]');
+      track.classList.toggle('active', newUpsells[key]);
+      trackEvent('upsell_toggled', { upsell: key, enabled: newUpsells[key] });
+      updatePrices();
+    }
+
+    // =============================================
+    // Price Calculation & UI Update
+    // =============================================
+    function calculateTotals() {
+      var todayTotal = BASE_SETUP;
+      var monthlyTotal = 0;
+
+      Object.keys(state.upsells).forEach(function(key) {
+        if (state.upsells[key]) {
+          if (UPSELLS[key].type === 'onetime') {
+            todayTotal += UPSELLS[key].price;
+          } else {
+            monthlyTotal += UPSELLS[key].price;
+          }
+        }
+      });
+
+      return { today: todayTotal, monthly: monthlyTotal };
+    }
+
+    function updatePrices() {
+      var totals = calculateTotals();
+
+      // Desktop summary — one-time items
+      var oneTimeContainer = document.getElementById('desktopOneTimeItems');
+      oneTimeContainer.querySelectorAll('.upsell-line').forEach(function(el) { el.remove(); });
+
+      Object.keys(UPSELLS).forEach(function(key) {
+        if (state.upsells[key] && UPSELLS[key].type === 'onetime') {
+          var div = document.createElement('div');
+          div.className = 'flex justify-between text-sm upsell-line summary-item-enter';
+          div.innerHTML = '<span class="text-gray-600">' + UPSELLS[key].name + '</span><span class="font-medium text-gray-900">$' + UPSELLS[key].price + '</span>';
+          oneTimeContainer.appendChild(div);
+        }
+      });
+
+      // Desktop summary — monthly items
+      var monthlyContainer = document.getElementById('desktopMonthlyItems');
+      var monthlySection = document.getElementById('desktopMonthlySection');
+      monthlyContainer.querySelectorAll('.upsell-line').forEach(function(el) { el.remove(); });
+
+      var hasMonthly = totals.monthly > 0;
+      monthlySection.classList.toggle('hidden', !hasMonthly);
+
+      Object.keys(UPSELLS).forEach(function(key) {
+        if (state.upsells[key] && UPSELLS[key].type === 'monthly') {
+          var div = document.createElement('div');
+          div.className = 'flex justify-between text-sm upsell-line summary-item-enter';
+          div.innerHTML = '<span class="text-gray-600">' + UPSELLS[key].name + '</span><span class="font-medium text-gray-900">$' + UPSELLS[key].price + '/mo</span>';
+          monthlyContainer.appendChild(div);
+        }
+      });
+
+      // Totals
+      document.getElementById('desktopTodayTotal').textContent = '$' + totals.today;
+      document.getElementById('desktopMonthlyRow').classList.toggle('hidden', !hasMonthly);
+      if (hasMonthly) {
+        document.getElementById('desktopMonthlyTotal').textContent = '$' + totals.monthly + '/mo';
+      }
+
+      // CTA
+      var ctaPrice = '$' + totals.today;
+      if (hasMonthly) ctaPrice += ' + $' + totals.monthly + '/mo';
+      document.getElementById('ctaText').textContent = 'Claim My Website \u2014 ' + ctaPrice;
+
+      // Mobile badge
+      var badgeText = '$' + totals.today;
+      if (hasMonthly) badgeText += ' + $' + totals.monthly + '/mo';
+      document.getElementById('mobileTotalBadge').textContent = badgeText;
+
+      // Mobile summary
+      updateMobileSummary(totals);
+    }
+
+    function updateMobileSummary(totals) {
+      var container = document.getElementById('mobileSummaryItems');
+      var html = '';
+
+      html += '<div class="flex justify-between text-sm py-1"><span class="text-gray-600">Custom-Built Website</span><span class="font-medium">$' + BASE_SETUP + '</span></div>';
+
+      Object.keys(UPSELLS).forEach(function(key) {
+        if (state.upsells[key] && UPSELLS[key].type === 'onetime') {
+          html += '<div class="flex justify-between text-sm py-1"><span class="text-gray-600">' + UPSELLS[key].name + '</span><span class="font-medium">$' + UPSELLS[key].price + '</span></div>';
+        }
+      });
+
+      Object.keys(UPSELLS).forEach(function(key) {
+        if (state.upsells[key] && UPSELLS[key].type === 'monthly') {
+          html += '<div class="flex justify-between text-sm py-1"><span class="text-gray-600">' + UPSELLS[key].name + '</span><span class="font-medium">$' + UPSELLS[key].price + '/mo</span></div>';
+        }
+      });
+
+      // Totals
+      html += '<div class="border-t border-gray-200 mt-2 pt-2">';
+      html += '<div class="flex justify-between"><span class="font-medium">Due today</span><span class="font-bold text-lg">$' + totals.today + '</span></div>';
+      if (totals.monthly > 0) {
+        html += '<div class="flex justify-between mt-1"><span class="text-sm text-gray-500">Then monthly</span><span class="font-semibold text-gray-700">$' + totals.monthly + '/mo</span></div>';
+      }
+      html += '</div>';
+
+      container.innerHTML = html;
+    }
+
+    // =============================================
+    // Mobile Summary Toggle
+    // =============================================
+    function toggleMobileSummary() {
+      state = { upsells: state.upsells, mobileSummaryOpen: !state.mobileSummaryOpen };
+      var content = document.getElementById('mobileSummaryContent');
+      var chevron = document.getElementById('mobileSummaryChevron');
+      content.classList.toggle('open', state.mobileSummaryOpen);
+      chevron.style.transform = state.mobileSummaryOpen ? 'rotate(180deg)' : 'rotate(0)';
+    }
+
+    // =============================================
+    // Form Validation
+    // =============================================
+    function validateForm() {
+      var valid = true;
+      var fields = [
+        { id: 'fullName', errorId: 'fullNameError', check: function(v) { return v.trim().length > 0; } },
+        { id: 'businessName', errorId: 'businessNameError', check: function(v) { return v.trim().length > 0; } },
+        { id: 'email', errorId: 'emailError', check: function(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); } },
+        { id: 'phone', errorId: 'phoneError', check: function(v) { return v.trim().length >= 7; } },
+        { id: 'cardNumber', errorId: 'cardNumberError', check: function(v) { return v.replace(/\s/g, '').length >= 13; } },
+        { id: 'cardExpiry', errorId: 'cardExpiryError', check: function(v) { return /^\d{2}\s*\/\s*\d{2}$/.test(v.trim()); } },
+        { id: 'cardCvc', errorId: 'cardCvcError', check: function(v) { return /^\d{3,4}$/.test(v.trim()); } }
+      ];
+
+      fields.forEach(function(f) {
+        var input = document.getElementById(f.id);
+        var error = document.getElementById(f.errorId);
+        var isValid = f.check(input.value);
+        error.classList.toggle('visible', !isValid);
+        input.style.borderColor = isValid ? '' : '#DC2626';
+        if (!isValid) valid = false;
+      });
+
+      return valid;
+    }
+
+    // =============================================
+    // Submit
+    // =============================================
+    function handleSubmit() {
+      if (!validateForm()) return;
+
+      var totals = calculateTotals();
+      trackEvent('payment_attempted', {
+        upsells: state.upsells,
+        todayTotal: totals.today,
+        monthlyTotal: totals.monthly
+      });
+
+      var btn = document.getElementById('ctaButton');
+      var text = document.getElementById('ctaText');
+      var spinner = document.getElementById('ctaSpinner');
+
+      btn.disabled = true;
+      btn.style.opacity = '0.8';
+      text.textContent = 'Processing...';
+      spinner.classList.remove('hidden');
+
+      setTimeout(function() {
+        spinner.classList.add('hidden');
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        showSuccess();
+      }, 2000);
+    }
+
+    // =============================================
+    // Success State + Confetti
+    // =============================================
+    function showSuccess() {
+      // Remove abandonment listener — this is a success, not an abandon
+      window.removeEventListener('beforeunload', trackAbandonment);
+
+      var totals = calculateTotals();
+      trackEvent('payment_success', {
+        upsells: state.upsells,
+        todayTotal: totals.today,
+        monthlyTotal: totals.monthly
+      });
+
+      document.getElementById('mainContent').classList.add('hidden');
+      document.getElementById('mobileSummary').classList.add('hidden');
+      document.getElementById('successState').classList.remove('hidden');
+      lucide.createIcons();
+      launchConfetti();
+    }
+
+    function launchConfetti() {
+      var colors = ['#4F46E5', '#F59E0B', '#10B981', '#EC4899', '#6366F1', '#F97316', '#06B6D4'];
+      for (var i = 0; i < 60; i++) {
+        var piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        piece.style.left = Math.random() * 100 + 'vw';
+        piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.width = (Math.random() * 8 + 6) + 'px';
+        piece.style.height = (Math.random() * 8 + 6) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        piece.style.animationDelay = (Math.random() * 1.5) + 's';
+        document.body.appendChild(piece);
+
+        setTimeout(function(p) { return function() { p.remove(); }; }(piece), 5000);
+      }
+    }
+
+    // =============================================
+    // Card Number Formatting
+    // =============================================
+    document.addEventListener('DOMContentLoaded', function() {
+      // Track checkout_viewed
+      trackEvent('checkout_viewed');
+
+      // Track form field interactions
+      var formFields = ['fullName', 'businessName', 'email', 'phone', 'cardNumber', 'cardExpiry', 'cardCvc'];
+      var formStarted = false;
+
+      formFields.forEach(function(fieldId) {
+        var el = document.getElementById(fieldId);
+        if (!el) return;
+
+        el.addEventListener('focus', function() {
+          if (!formStarted) {
+            formStarted = true;
+            trackEvent('form_started', { firstField: fieldId });
+          }
+        });
+
+        el.addEventListener('blur', function() {
+          if (el.value.trim().length > 0 && !trackedFields[fieldId]) {
+            trackedFields[fieldId] = true;
+            trackEvent('field_completed', { field: fieldId });
+          }
+        });
+      });
+
+      // Card formatting
+      var cardInput = document.getElementById('cardNumber');
+      cardInput.addEventListener('input', function(e) {
+        var value = e.target.value.replace(/\D/g, '');
+        var formatted = '';
+        for (var i = 0; i < value.length && i < 16; i++) {
+          if (i > 0 && i % 4 === 0) formatted += ' ';
+          formatted += value[i];
+        }
+        e.target.value = formatted;
+      });
+
+      var expiryInput = document.getElementById('cardExpiry');
+      expiryInput.addEventListener('input', function(e) {
+        var value = e.target.value.replace(/\D/g, '');
+        if (value.length >= 2) {
+          value = value.substring(0, 2) + ' / ' + value.substring(2, 4);
+        }
+        e.target.value = value;
+      });
+
+      var cvcInput = document.getElementById('cardCvc');
+      cvcInput.addEventListener('input', function(e) {
+        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
+      });
+    });
+
+    // =============================================
+    // Preview scaling
+    // =============================================
+    function scalePreview() {
+      var container = document.getElementById('previewContainer');
+      var iframe = document.getElementById('previewIframe');
+      if (!container || !iframe) return;
+      var scale = container.offsetWidth / 1280;
+      iframe.style.transform = 'scale(' + scale + ')';
+      container.style.height = Math.round(900 * scale) + 'px';
+    }
+
+    // =============================================
+    // Init
+    // =============================================
+    readUrlParams();
+    updatePrices();
+    lucide.createIcons();
+
+    var previewRetries = 0;
+    function initPreview() {
+      var container = document.getElementById('previewContainer');
+      if (container && container.offsetWidth > 0) {
+        scalePreview();
+      } else if (previewRetries < 100) {
+        previewRetries++;
+        setTimeout(initPreview, 50);
+      }
+    }
+    setTimeout(initPreview, 100);
+    window.addEventListener('resize', scalePreview);
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+{
+  "name": "@lead-gen/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lead-gen/db": "workspace:*",
+    "@lead-gen/queue": "workspace:*",
+    "cors": "^2.8.6",
+    "express": "^4.22.1",
+    "resend": "^4.8.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "tsx": "^4.19.3",
+    "typescript": "^5.7.3"
+  }
+}

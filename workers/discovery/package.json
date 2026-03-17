@@ -1,0 +1,21 @@
+{
+  "name": "@lead-gen/worker-discovery",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@lead-gen/db": "workspace:*",
+    "@lead-gen/queue": "workspace:*",
+    "bullmq": "^5.34.8"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0"
+  }
+}

@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SiteForge - Your next website is already built</title>
+  <meta name="description" content="SiteForge builds landing pages for local businesses before you even ask. See your free preview and go live in 24 hours." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="SiteForge - Your next website is already built" />
+  <meta property="og:description" content="We build landing pages for local businesses before you even ask. See your free preview and go live in 24 hours." />
+  <meta property="og:url" content="https://siteforge.agency/" />
+  <meta property="og:site_name" content="SiteForge" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="SiteForge - Your next website is already built" />
+  <meta name="twitter:description" content="We build landing pages for local businesses before you even ask. See your free preview and go live in 24 hours." />
+
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230f172a'/%3E%3Crect x='8' y='8' width='14' height='7' rx='2' fill='%23F59E0B'/%3E%3Crect x='13' y='14' width='4' height='12' rx='2' fill='white' opacity='0.85'/%3E%3Ccircle cx='25' cy='10' r='1.5' fill='white' opacity='0.6'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            heading: ['Space Grotesk', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            primary: {
+              50: '#EEF2FF',
+              100: '#E0E7FF',
+              200: '#C7D2FE',
+              300: '#A5B4FC',
+              400: '#818CF8',
+              500: '#6366F1',
+              600: '#4F46E5',
+              700: '#4338CA',
+              800: '#3730A3',
+              900: '#312E81',
+              950: '#1E1B4B',
+            },
+            accent: {
+              300: '#FCD34D',
+              400: '#FBBF24',
+              500: '#F59E0B',
+              600: '#D97706',
+            },
+          },
+        },
+      },
+    };
+  </script>
+  <style>
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 5rem;
+    }
+
+    /* Fade-in on scroll */
+    .fade-section {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .fade-section.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Staggered children */
+    .stagger-children > * {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .stagger-children.visible > *:nth-child(1) { transition-delay: 0ms; }
+    .stagger-children.visible > *:nth-child(2) { transition-delay: 100ms; }
+    .stagger-children.visible > *:nth-child(3) { transition-delay: 200ms; }
+    .stagger-children.visible > *:nth-child(4) { transition-delay: 300ms; }
+    .stagger-children.visible > *:nth-child(5) { transition-delay: 400ms; }
+    .stagger-children.visible > *:nth-child(6) { transition-delay: 500ms; }
+    .stagger-children.visible > * {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Glass card */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    /* Browser mockup animation */
+    @keyframes contentFadeIn1 { 0%, 20% { opacity: 0; transform: translateY(8px); } 30%, 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes contentFadeIn2 { 0%, 35% { opacity: 0; transform: translateY(8px); } 45%, 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes contentFadeIn3 { 0%, 50% { opacity: 0; transform: translateY(8px); } 60%, 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes contentFadeIn4 { 0%, 65% { opacity: 0; transform: translateY(8px); } 75%, 100% { opacity: 1; transform: translateY(0); } }
+    @keyframes contentFadeIn5 { 0%, 78% { opacity: 0; transform: translateY(8px); } 88%, 100% { opacity: 1; transform: translateY(0); } }
+    .mock-el-1 { animation: contentFadeIn1 3.5s ease-out infinite; }
+    .mock-el-2 { animation: contentFadeIn2 3.5s ease-out infinite; }
+    .mock-el-3 { animation: contentFadeIn3 3.5s ease-out infinite; }
+    .mock-el-4 { animation: contentFadeIn4 3.5s ease-out infinite; }
+    .mock-el-5 { animation: contentFadeIn5 3.5s ease-out infinite; }
+
+    /* Nav active link */
+    .nav-link {
+      position: relative;
+    }
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      width: 0;
+      height: 2px;
+      background: #4F46E5;
+      transition: width 0.3s ease, left 0.3s ease;
+      border-radius: 1px;
+    }
+    .nav-link.active::after,
+    .nav-link:hover::after {
+      width: 100%;
+      left: 0;
+    }
+
+    /* Subtle gradient mesh background */
+    .hero-bg {
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 20%, rgba(99, 102, 241, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 80% 80%, rgba(245, 158, 11, 0.08) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 60% 10%, rgba(79, 70, 229, 0.06) 0%, transparent 50%);
+    }
+
+    /* Pricing toggle */
+    .toggle-bg {
+      transition: background 0.3s ease;
+    }
+    .toggle-knob {
+      transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* Pulse glow on CTA */
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(79, 70, 229, 0); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 2.5s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="font-sans text-gray-900 antialiased">
+
+  <!-- ========== STICKY NAV ========== -->
+  <nav id="navbar" class="fixed top-0 inset-x-0 z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 lg:h-20">
+        <!-- Logo -->
+        <a href="#" class="flex items-center gap-2.5 group">
+          <svg width="36" height="36" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" class="shadow-lg shadow-gray-900/15 rounded-xl group-hover:shadow-gray-900/25 transition-shadow">
+            <rect width="40" height="40" rx="10" fill="#0f172a"/>
+            <rect x="11" y="12" width="18" height="10" rx="3" fill="#F59E0B"/>
+            <rect x="18" y="20" width="4" height="16" rx="2" fill="white"/>
+            <circle cx="32" cy="14" r="2" fill="white" opacity="0.6"/>
+            <circle cx="35" cy="19" r="1.2" fill="white" opacity="0.3"/>
+          </svg>
+          <span class="font-heading font-semibold text-xl text-gray-900">SiteForge</span>
+        </a>
+
+        <!-- Desktop Nav Links -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#how-it-works" class="nav-link text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors" data-section="how-it-works">How It Works</a>
+          <a href="#benefits" class="nav-link text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors" data-section="benefits">Benefits</a>
+          <a href="#testimonials" class="nav-link text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors" data-section="testimonials">Testimonials</a>
+          <a href="#pricing" class="nav-link text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors" data-section="pricing">Pricing</a>
+          <a href="request.html" class="inline-flex items-center justify-center px-5 py-2.5 text-sm font-semibold text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-all hover:shadow-lg hover:shadow-primary-600/25 active:scale-[0.97]">
+            Get Started
+          </a>
+        </div>
+
+        <!-- Mobile hamburger -->
+        <button id="mobile-toggle" class="md:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors" aria-label="Open menu">
+          <i data-lucide="menu" class="w-5 h-5 text-gray-700"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="md:hidden hidden bg-white/95 backdrop-blur-xl border-t border-gray-100">
+      <div class="px-4 py-4 space-y-3">
+        <a href="#how-it-works" class="block text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors py-2">How It Works</a>
+        <a href="#benefits" class="block text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors py-2">Benefits</a>
+        <a href="#testimonials" class="block text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors py-2">Testimonials</a>
+        <a href="#pricing" class="block text-sm font-medium text-gray-700 hover:text-primary-600 transition-colors py-2">Pricing</a>
+        <a href="request.html" class="block text-center px-5 py-3 text-sm font-semibold text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-all">Get Started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ========== HERO ========== -->
+  <section class="hero-bg relative pt-24 pb-16 sm:pt-32 sm:pb-20 lg:pt-44 lg:pb-32 overflow-hidden">
+    <!-- Decorative dots -->
+    <div class="absolute inset-0 opacity-[0.03]" style="background-image: radial-gradient(circle, #4F46E5 1px, transparent 1px); background-size: 24px 24px;"></div>
+
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+        <!-- Left: Copy -->
+        <div class="max-w-xl">
+          <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 border border-primary-100 mb-6">
+            <span class="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></span>
+            <span class="text-xs font-semibold text-primary-700 tracking-wide uppercase">Now accepting new businesses</span>
+          </div>
+          <h1 class="font-heading text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] text-gray-950">
+            We already built your <span class="bg-gradient-to-r from-primary-600 to-primary-500 bg-clip-text text-transparent">new website.</span>
+          </h1>
+          <p class="mt-6 text-lg sm:text-xl text-gray-600 leading-relaxed max-w-lg">
+            We build landing pages for local businesses before you even ask. See your free preview and go live in 24 hours.
+          </p>
+          <div class="mt-10 flex flex-col sm:flex-row gap-4">
+            <a href="request.html" class="pulse-glow inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-all hover:shadow-xl hover:shadow-primary-600/25 active:scale-[0.97]">
+              Get Your Free Preview
+              <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </a>
+            <a href="#testimonials" class="inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-gray-700 bg-white rounded-full border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all active:scale-[0.97]">
+              See real examples
+            </a>
+          </div>
+          <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500">
+            <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i> No credit card</span>
+            <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i> No contracts</span>
+            <span class="flex items-center gap-1.5"><i data-lucide="check-circle-2" class="w-4 h-4 text-green-500"></i> Live in 24h</span>
+          </div>
+        </div>
+
+        <!-- Right: Browser Mockup -->
+        <div class="relative lg:pl-8 hidden sm:block">
+          <div class="relative rounded-2xl overflow-hidden shadow-2xl shadow-primary-900/10 border border-gray-200/80">
+            <!-- Browser chrome -->
+            <div class="bg-gray-100 border-b border-gray-200 px-4 py-3 flex items-center gap-3">
+              <div class="flex gap-1.5">
+                <div class="w-3 h-3 rounded-full bg-red-400"></div>
+                <div class="w-3 h-3 rounded-full bg-yellow-400"></div>
+                <div class="w-3 h-3 rounded-full bg-green-400"></div>
+              </div>
+              <div class="flex-1 bg-white rounded-lg px-4 py-1.5 text-xs text-gray-400 font-mono text-center border border-gray-200">
+                yourbusiness.siteforge.agency
+              </div>
+            </div>
+            <!-- Page content being "assembled" -->
+            <div class="bg-white p-6 sm:p-8 space-y-5 min-h-[340px]">
+              <!-- Nav mock -->
+              <div class="mock-el-1 flex items-center justify-between">
+                <div class="w-28 h-5 rounded bg-primary-600/80"></div>
+                <div class="flex gap-3">
+                  <div class="w-14 h-3 rounded bg-gray-200"></div>
+                  <div class="w-14 h-3 rounded bg-gray-200"></div>
+                  <div class="w-20 h-7 rounded-full bg-primary-600/80"></div>
+                </div>
+              </div>
+              <!-- Hero mock -->
+              <div class="mock-el-2 pt-4 space-y-3">
+                <div class="w-3/4 h-6 rounded bg-gray-800/80"></div>
+                <div class="w-1/2 h-6 rounded bg-gray-800/60"></div>
+                <div class="w-2/3 h-3 rounded bg-gray-300 mt-3"></div>
+                <div class="w-1/2 h-3 rounded bg-gray-300"></div>
+              </div>
+              <!-- CTA button mock -->
+              <div class="mock-el-3 pt-2">
+                <div class="w-36 h-10 rounded-full bg-accent-500"></div>
+              </div>
+              <!-- Cards mock -->
+              <div class="mock-el-4 grid grid-cols-3 gap-3 pt-4">
+                <div class="h-20 rounded-lg bg-primary-50 border border-primary-100"></div>
+                <div class="h-20 rounded-lg bg-primary-50 border border-primary-100"></div>
+                <div class="h-20 rounded-lg bg-primary-50 border border-primary-100"></div>
+              </div>
+              <!-- Footer mock -->
+              <div class="mock-el-5 flex justify-between items-center pt-4 border-t border-gray-100">
+                <div class="w-20 h-3 rounded bg-gray-200"></div>
+                <div class="flex gap-2">
+                  <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+                  <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+                  <div class="w-6 h-6 rounded-full bg-gray-200"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Glow behind mockup -->
+          <div class="absolute -inset-4 -z-10 rounded-3xl bg-gradient-to-tr from-primary-200/40 via-transparent to-accent-200/30 blur-2xl"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== HOW IT WORKS ========== -->
+  <section id="how-it-works" class="py-16 sm:py-24 lg:py-32 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto fade-section">
+        <span class="text-sm font-semibold text-primary-600 tracking-wide uppercase">How It Works</span>
+        <h2 class="mt-3 font-heading text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-950">
+          Three steps. Zero headaches.
+        </h2>
+        <p class="mt-5 text-lg text-gray-500">We do the work upfront. You just say yes or no.</p>
+      </div>
+
+      <div class="mt-16 lg:mt-20 grid md:grid-cols-3 gap-8 lg:gap-12 stagger-children fade-section">
+        <!-- Step 1 -->
+        <div class="relative group">
+          <div class="flex items-center gap-4 mb-5">
+            <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-primary-600 flex items-center justify-center text-white font-heading font-bold text-lg shadow-lg shadow-primary-600/25 group-hover:shadow-primary-600/40 transition-shadow">1</div>
+            <div class="hidden md:block flex-1 h-px bg-gradient-to-r from-primary-200 to-transparent"></div>
+          </div>
+          <h3 class="font-heading text-xl font-semibold text-gray-900 mb-3">We Find You</h3>
+          <p class="text-gray-500 leading-relaxed">We look for local businesses that need a better website. No application needed. We come to you.</p>
+          <div class="mt-6 flex items-center gap-3 text-primary-600">
+            <i data-lucide="search" class="w-5 h-5"></i>
+            <i data-lucide="map-pin" class="w-5 h-5"></i>
+            <i data-lucide="building-2" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="relative group">
+          <div class="flex items-center gap-4 mb-5">
+            <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-primary-600 flex items-center justify-center text-white font-heading font-bold text-lg shadow-lg shadow-primary-600/25 group-hover:shadow-primary-600/40 transition-shadow">2</div>
+            <div class="hidden md:block flex-1 h-px bg-gradient-to-r from-primary-200 to-transparent"></div>
+          </div>
+          <h3 class="font-heading text-xl font-semibold text-gray-900 mb-3">We Build Your Page</h3>
+          <p class="text-gray-500 leading-relaxed">We design a custom page for your business. Your name, your services, your neighborhood. Not a mockup. A finished page.</p>
+          <div class="mt-6 flex items-center gap-3 text-primary-600">
+            <i data-lucide="palette" class="w-5 h-5"></i>
+            <i data-lucide="code-2" class="w-5 h-5"></i>
+            <i data-lucide="wand-2" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="relative group">
+          <div class="flex items-center gap-4 mb-5">
+            <div class="flex-shrink-0 w-12 h-12 rounded-2xl bg-primary-600 flex items-center justify-center text-white font-heading font-bold text-lg shadow-lg shadow-primary-600/25 group-hover:shadow-primary-600/40 transition-shadow">3</div>
+          </div>
+          <h3 class="font-heading text-xl font-semibold text-gray-900 mb-3">You Claim It & Go Live</h3>
+          <p class="text-gray-500 leading-relaxed">Love it? Click one button. We connect your domain, flip the switch, live in 24 hours.</p>
+          <div class="mt-6 flex items-center gap-3 text-primary-600">
+            <i data-lucide="rocket" class="w-5 h-5"></i>
+            <i data-lucide="globe" class="w-5 h-5"></i>
+            <i data-lucide="party-popper" class="w-5 h-5"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== BENEFITS ========== -->
+  <section id="benefits" class="py-16 sm:py-24 lg:py-32 bg-gradient-to-b from-primary-50/50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto fade-section">
+        <span class="text-sm font-semibold text-primary-600 tracking-wide uppercase">Benefits</span>
+        <h2 class="mt-3 font-heading text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-950">
+          Why local businesses switch to us
+        </h2>
+      </div>
+
+      <div class="mt-12 sm:mt-16 grid sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6 stagger-children fade-section">
+        <!-- Card 1 -->
+        <div class="glass-card rounded-2xl p-5 sm:p-7 hover:shadow-xl hover:shadow-primary-600/5 hover:-translate-y-1 transition-all duration-300 group">
+          <div class="w-11 h-11 rounded-xl bg-primary-100 flex items-center justify-center mb-5 group-hover:bg-primary-600 transition-colors">
+            <i data-lucide="fingerprint" class="w-5 h-5 text-primary-600 group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-heading text-lg font-semibold text-gray-900 mb-2">Built for YOUR business</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Every page is custom. A plumber in Austin gets a different page than a dentist in Denver.</p>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="glass-card rounded-2xl p-5 sm:p-7 hover:shadow-xl hover:shadow-primary-600/5 hover:-translate-y-1 transition-all duration-300 group">
+          <div class="w-11 h-11 rounded-xl bg-primary-100 flex items-center justify-center mb-5 group-hover:bg-primary-600 transition-colors">
+            <i data-lucide="zap" class="w-5 h-5 text-primary-600 group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-heading text-lg font-semibold text-gray-900 mb-2">Fast on every device</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Loads in under 2 seconds, looks sharp on every screen.</p>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="glass-card rounded-2xl p-5 sm:p-7 hover:shadow-xl hover:shadow-primary-600/5 hover:-translate-y-1 transition-all duration-300 group">
+          <div class="w-11 h-11 rounded-xl bg-primary-100 flex items-center justify-center mb-5 group-hover:bg-primary-600 transition-colors">
+            <i data-lucide="handshake" class="w-5 h-5 text-primary-600 group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-heading text-lg font-semibold text-gray-900 mb-2">No contracts, cancel anytime</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Month to month. The work speaks for itself.</p>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="glass-card rounded-2xl p-5 sm:p-7 hover:shadow-xl hover:shadow-primary-600/5 hover:-translate-y-1 transition-all duration-300 group">
+          <div class="w-11 h-11 rounded-xl bg-primary-100 flex items-center justify-center mb-5 group-hover:bg-primary-600 transition-colors">
+            <i data-lucide="timer" class="w-5 h-5 text-primary-600 group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-heading text-lg font-semibold text-gray-900 mb-2">Live in 24 hours</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Traditional agencies take weeks. We hand you a finished page same day.</p>
+        </div>
+
+        <!-- Card 5 -->
+        <div class="glass-card rounded-2xl p-5 sm:p-7 hover:shadow-xl hover:shadow-primary-600/5 hover:-translate-y-1 transition-all duration-300 group">
+          <div class="w-11 h-11 rounded-xl bg-primary-100 flex items-center justify-center mb-5 group-hover:bg-primary-600 transition-colors">
+            <i data-lucide="map" class="w-5 h-5 text-primary-600 group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-heading text-lg font-semibold text-gray-900 mb-2">SEO that works locally</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Local keywords and Google Business integration included.</p>
+        </div>
+
+        <!-- Card 6 -->
+        <div class="glass-card rounded-2xl p-5 sm:p-7 hover:shadow-xl hover:shadow-primary-600/5 hover:-translate-y-1 transition-all duration-300 group">
+          <div class="w-11 h-11 rounded-xl bg-primary-100 flex items-center justify-center mb-5 group-hover:bg-primary-600 transition-colors">
+            <i data-lucide="shield-check" class="w-5 h-5 text-primary-600 group-hover:text-white transition-colors"></i>
+          </div>
+          <h3 class="font-heading text-lg font-semibold text-gray-900 mb-2">You own the content</h3>
+          <p class="text-gray-500 text-sm leading-relaxed">Leave anytime, take your content with you.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TESTIMONIALS ========== -->
+  <section id="testimonials" class="py-16 sm:py-24 lg:py-32 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto fade-section">
+        <span class="text-sm font-semibold text-primary-600 tracking-wide uppercase">Testimonials</span>
+        <h2 class="mt-3 font-heading text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-950">
+          Don't take our word for it.
+        </h2>
+        <p class="mt-5 text-lg text-gray-500">Hear it from people who actually use this.</p>
+      </div>
+
+      <div class="mt-16 grid md:grid-cols-3 gap-8 stagger-children fade-section">
+        <!-- Testimonial 1 -->
+        <div class="glass-card rounded-2xl p-8 hover:shadow-xl hover:shadow-primary-600/5 transition-all duration-300 flex flex-col">
+          <div class="flex gap-1 mb-5">
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+          </div>
+          <blockquote class="text-gray-600 leading-relaxed flex-1">
+            "I've been meaning to update my website for three years. Then SiteForge sent me a link to a page they already made for my shop. It looked better than anything I could have imagined. I claimed it that same afternoon."
+          </blockquote>
+          <div class="mt-6 pt-6 border-t border-gray-100 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-primary-400 to-primary-600 flex items-center justify-center text-white font-semibold text-sm">MG</div>
+            <div>
+              <p class="font-semibold text-sm text-gray-900">Maria Gonzalez</p>
+              <p class="text-xs text-gray-500">Brighter Smile Family Dentistry, Mesa, AZ</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 2 -->
+        <div class="glass-card rounded-2xl p-8 hover:shadow-xl hover:shadow-primary-600/5 transition-all duration-300 flex flex-col">
+          <div class="flex gap-1 mb-5">
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+          </div>
+          <blockquote class="text-gray-600 leading-relaxed flex-1">
+            "I was paying $200 a month for a website that looked like it was built in 2009. SiteForge built me something gorgeous for half the price and I didn't have to sit through a single Zoom call."
+          </blockquote>
+          <div class="mt-6 pt-6 border-t border-gray-100 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-accent-400 to-accent-600 flex items-center justify-center text-white font-semibold text-sm">TW</div>
+            <div>
+              <p class="font-semibold text-sm text-gray-900">Tom Whitfield</p>
+              <p class="text-xs text-gray-500">Whitfield Plumbing & Drain, Charlotte, NC</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonial 3 -->
+        <div class="glass-card rounded-2xl p-8 hover:shadow-xl hover:shadow-primary-600/5 transition-all duration-300 flex flex-col">
+          <div class="flex gap-1 mb-5">
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+            <i data-lucide="star" class="w-5 h-5 fill-accent-400 text-accent-400"></i>
+          </div>
+          <blockquote class="text-gray-600 leading-relaxed flex-1">
+            "I almost deleted the email because I thought it was spam. Then I clicked the link and saw a full landing page with my restaurant name, our menu highlights, and a reservation button. It was already done."
+          </blockquote>
+          <div class="mt-6 pt-6 border-t border-gray-100 flex items-center gap-4">
+            <div class="w-11 h-11 rounded-full bg-gradient-to-br from-green-400 to-green-600 flex items-center justify-center text-white font-semibold text-sm">JO</div>
+            <div>
+              <p class="font-semibold text-sm text-gray-900">James Okafor</p>
+              <p class="text-xs text-gray-500">Savory Kitchen, Portland, OR</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PRICING ========== -->
+  <section id="pricing" class="py-16 sm:py-24 lg:py-32 bg-gradient-to-b from-white to-primary-50/30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center max-w-2xl mx-auto fade-section">
+        <span class="text-sm font-semibold text-primary-600 tracking-wide uppercase">Pricing</span>
+        <h2 class="mt-3 font-heading text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-gray-950">
+          Simple pricing. No surprises.
+        </h2>
+        <p class="mt-5 text-lg text-gray-500">One plan. Monthly or annual. That's it.</p>
+      </div>
+
+      <!-- Toggle -->
+      <div class="mt-12 flex items-center justify-center gap-4 fade-section">
+        <span id="label-monthly" class="text-sm font-semibold text-gray-900">Monthly</span>
+        <button id="pricing-toggle" class="relative w-14 h-8 rounded-full bg-primary-600 p-1 cursor-pointer transition-colors" role="switch" aria-checked="false">
+          <span class="toggle-knob block w-6 h-6 rounded-full bg-white shadow-md"></span>
+        </button>
+        <span id="label-annual" class="text-sm font-medium text-gray-400 flex items-center gap-2">
+          Annual
+          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold bg-accent-400/20 text-accent-600">2 MONTHS FREE</span>
+        </span>
+      </div>
+
+      <!-- Pricing Card -->
+      <div class="mt-12 max-w-lg mx-auto fade-section">
+        <div class="relative glass-card rounded-3xl p-6 sm:p-10 shadow-xl shadow-primary-600/5 border border-primary-100/50">
+          <!-- Popular badge -->
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2">
+            <span class="inline-flex items-center px-4 py-1.5 rounded-full text-xs font-bold bg-primary-600 text-white shadow-lg shadow-primary-600/25">Most Popular</span>
+          </div>
+
+          <div class="text-center">
+            <h3 class="font-heading text-2xl font-bold text-gray-900">LaunchPad</h3>
+            <p class="mt-2 text-sm text-gray-500">A complete website, managed for you</p>
+
+            <div class="mt-8 flex items-baseline justify-center gap-1">
+              <span class="font-heading text-5xl sm:text-6xl font-bold text-gray-950" id="price-value">$79</span>
+              <span class="text-gray-500 font-medium">/mo</span>
+            </div>
+
+            <p class="mt-3 text-sm text-gray-400">
+              <span class="line-through">$299 setup fee</span>
+              <span class="ml-2 font-semibold text-green-600">Waived</span>
+            </p>
+          </div>
+
+          <ul class="mt-10 space-y-4">
+            <li class="flex items-start gap-3">
+              <i data-lucide="check" class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"></i>
+              <span class="text-gray-700">Custom-designed landing page</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i data-lucide="check" class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"></i>
+              <span class="text-gray-700">Mobile-optimized, loads in under 2s</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i data-lucide="check" class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"></i>
+              <span class="text-gray-700">Local SEO setup</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i data-lucide="check" class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"></i>
+              <span class="text-gray-700">Contact form + click-to-call</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i data-lucide="check" class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"></i>
+              <span class="text-gray-700">Free domain connection or subdomain</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <i data-lucide="check" class="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"></i>
+              <span class="text-gray-700">Hosting, SSL, uptime monitoring</span>
+            </li>
+          </ul>
+
+          <a href="request.html" class="mt-10 w-full inline-flex items-center justify-center gap-2 px-8 py-4 text-base font-semibold text-white bg-primary-600 rounded-full hover:bg-primary-700 transition-all hover:shadow-xl hover:shadow-primary-600/25 active:scale-[0.97]">
+            Get Started
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </a>
+
+          <p class="mt-4 text-center text-xs text-gray-400">No credit card required to preview. Cancel anytime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== FINAL CTA ========== -->
+  <section id="get-started" class="py-16 sm:py-24 lg:py-32 relative overflow-hidden">
+    <!-- Background -->
+    <div class="absolute inset-0 bg-gradient-to-br from-primary-950 via-primary-900 to-primary-800"></div>
+    <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle, white 1px, transparent 1px); background-size: 32px 32px;"></div>
+
+    <div class="relative max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center fade-section">
+      <h2 class="font-heading text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight">
+        Your customers are searching for you right now.
+      </h2>
+      <p class="mt-4 sm:mt-6 text-lg sm:text-xl text-primary-200 max-w-xl mx-auto">
+        Let us show you what they should be finding.
+      </p>
+      <div class="mt-10">
+        <a href="request.html" class="pulse-glow inline-flex items-center justify-center gap-2 px-10 py-5 text-lg font-semibold text-primary-900 bg-white rounded-full hover:bg-primary-50 transition-all hover:shadow-2xl active:scale-[0.97]">
+          Get My Free Preview
+          <i data-lucide="arrow-right" class="w-5 h-5"></i>
+        </a>
+      </div>
+      <p class="mt-6 text-sm text-primary-300">Takes 2 minutes. No credit card needed.</p>
+    </div>
+  </section>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="bg-gray-950 text-gray-400 py-10 sm:py-16">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+        <!-- Logo -->
+        <div class="flex items-center gap-2.5">
+          <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="40" height="40" rx="10" fill="#4F46E5"/>
+            <rect x="11" y="12" width="18" height="10" rx="3" fill="#F59E0B"/>
+            <rect x="18" y="20" width="4" height="16" rx="2" fill="white"/>
+            <circle cx="32" cy="14" r="2" fill="white" opacity="0.6"/>
+            <circle cx="35" cy="19" r="1.2" fill="white" opacity="0.3"/>
+          </svg>
+          <span class="font-heading font-semibold text-lg text-white">SiteForge</span>
+        </div>
+
+        <!-- Links -->
+        <nav class="flex flex-wrap justify-center gap-x-8 gap-y-3 text-sm">
+          <a href="#" class="hover:text-white transition-colors">About</a>
+          <a href="#pricing" class="hover:text-white transition-colors">Pricing</a>
+          <a href="#" class="hover:text-white transition-colors">FAQ</a>
+          <a href="#" class="hover:text-white transition-colors">Contact</a>
+          <a href="privacy.html" class="hover:text-white transition-colors">Privacy</a>
+          <a href="terms.html" class="hover:text-white transition-colors">Terms</a>
+        </nav>
+      </div>
+
+      <div class="mt-10 pt-8 border-t border-gray-800 text-center text-xs text-gray-500">
+        &copy; 2025 SiteForge. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- ========== SCRIPTS ========== -->
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // --- Intersection Observer: fade-in on scroll ---
+    const fadeObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+          }
+        });
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -40px 0px' }
+    );
+    document.querySelectorAll('.fade-section').forEach((el) => fadeObserver.observe(el));
+
+    // --- Intersection Observer: active nav link ---
+    const sections = ['how-it-works', 'benefits', 'testimonials', 'pricing'];
+    const navLinks = document.querySelectorAll('.nav-link[data-section]');
+
+    const sectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            navLinks.forEach((link) => {
+              if (link.dataset.section === id) {
+                link.classList.add('active');
+              } else {
+                link.classList.remove('active');
+              }
+            });
+          }
+        });
+      },
+      { threshold: 0.3, rootMargin: '-80px 0px -40% 0px' }
+    );
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) sectionObserver.observe(el);
+    });
+
+    // --- Sticky nav background on scroll ---
+    const navbar = document.getElementById('navbar');
+    const updateNav = () => {
+      if (window.scrollY > 20) {
+        navbar.classList.add('bg-white/90', 'backdrop-blur-xl', 'shadow-sm', 'border-b', 'border-gray-100/50');
+      } else {
+        navbar.classList.remove('bg-white/90', 'backdrop-blur-xl', 'shadow-sm', 'border-b', 'border-gray-100/50');
+      }
+    };
+    window.addEventListener('scroll', updateNav, { passive: true });
+    updateNav();
+
+    // --- Mobile menu toggle ---
+    const mobileToggle = document.getElementById('mobile-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    mobileToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+    });
+    // Close mobile menu on link click
+    mobileMenu.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+    });
+
+    // --- Pricing toggle ---
+    const pricingToggle = document.getElementById('pricing-toggle');
+    const priceValue = document.getElementById('price-value');
+    const labelMonthly = document.getElementById('label-monthly');
+    const labelAnnual = document.getElementById('label-annual');
+    let isAnnual = false;
+
+    pricingToggle.addEventListener('click', () => {
+      isAnnual = !isAnnual;
+      pricingToggle.setAttribute('aria-checked', isAnnual);
+
+      if (isAnnual) {
+        pricingToggle.querySelector('.toggle-knob').style.transform = 'translateX(24px)';
+        priceValue.textContent = '$63.25';
+        labelAnnual.classList.remove('text-gray-400');
+        labelAnnual.classList.add('text-gray-900', 'font-semibold');
+        labelMonthly.classList.remove('text-gray-900', 'font-semibold');
+        labelMonthly.classList.add('text-gray-400', 'font-medium');
+      } else {
+        pricingToggle.querySelector('.toggle-knob').style.transform = 'translateX(0)';
+        priceValue.textContent = '$79';
+        labelMonthly.classList.remove('text-gray-400', 'font-medium');
+        labelMonthly.classList.add('text-gray-900', 'font-semibold');
+        labelAnnual.classList.remove('text-gray-900');
+        labelAnnual.classList.add('text-gray-400');
+        labelAnnual.classList.remove('font-semibold');
+        labelAnnual.classList.add('font-medium');
+      }
+    });
+  </script>
+</body>
+</html>
