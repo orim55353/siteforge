@@ -14,13 +14,14 @@ An AI-assisted lead generation platform that:
 ## Tech Stack
 
 - Database: Supabase (Postgres via Prisma ORM)
-- Job Queue: BullMQ + Redis (Upstash)
+- Serverless: GCP Cloud Functions gen2 (scales to zero, $0/mo on free tier)
+- Scheduler: GCP Cloud Scheduler (hourly email sends)
 - Email: Resend (outbound + inbound webhooks)
 - File Storage: Cloudflare R2 (landing page HTML + assets)
 - Landing Page Serving: Cloudflare Worker (`lead-pages-router`) reading from R2
 - Agency Site Hosting: Cloudflare Pages (static HTML — `siteforge.agency`)
 - AI: Claude API (claude-haiku-3 for page content generation)
-- Backend: Node.js workers (TypeScript)
+- Backend: Plain async functions (TypeScript), no BullMQ/Redis
 - Frontend/Admin: Next.js 15 + React 19 + Tailwind 4
 - ORM: Prisma 6.4
 
@@ -29,20 +30,23 @@ An AI-assisted lead generation platform that:
 ```
 /apps
   /admin        ← Next.js founder dashboard (port 3300)
-  /api          ← Express webhook handlers (Resend inbound, email events)
+  /api          ← Express webhook handlers (local dev server)
   /agency       ← SiteForge static site (index.html, checkout.html, request.html)
 /workers
-  /discovery    ← Finds businesses from Google Places / SerpAPI
+  /discovery    ← Finds businesses from Google Places / SerpAPI (plain async functions)
   /enrichment   ← Website audit, photo fetch, AI analysis
   /scoring      ← Rule-based lead scoring
   /page-gen     ← AI content generation + Handlebars rendering
   /deploy       ← R2 upload + claim bar injection
-  /scheduler    ← Timezone-aware BullMQ job scheduling
+  /scheduler    ← Timezone-aware outreach scheduling
   /email        ← Resend email sending
+  /extra-pages  ← AI-generated about/services/gallery pages
+/functions      ← GCP Cloud Function HTTP entry points (production deployment)
 /packages
   /db           ← Prisma schema + client (shared)
-  /queue        ← BullMQ queue/worker definitions + Bull Board UI (shared)
+  /queue        ← Job payload type definitions (shared)
   /templates    ← Handlebars page templates + claim bar injection
+  /ai           ← Claude CLI wrapper + business context builder
   /types        ← Shared TypeScript types
 /infra
   /cf-worker    ← Cloudflare Worker for serving landing pages from R2
@@ -69,9 +73,17 @@ An AI-assisted lead generation platform that:
 - Next.js app in `/apps/admin/`
 - Currently runs locally (`pnpm dev` on port 3300)
 
-### API Server
+### API / Cloud Functions (Production)
+- **GCP Cloud Functions gen2** in `/functions/`
+- Each webhook handler is an independent Cloud Function (scales to zero)
+- Deploy all: `cd functions && bash deploy.sh`
+- Cloud Scheduler sends hourly outreach via `sendDueOutreach` function
+- See `functions/deploy-env.yaml.example` for environment variables
+
+### API Server (Local Development)
 - Express app in `/apps/api/`
-- Handles Resend webhooks (inbound email, email events) and page view tracking
+- Same webhook handlers, mounted on Express routes
+- Run locally: `pnpm dev` from `/apps/api/`
 
 ## Pipeline State Machine
 
@@ -88,11 +100,13 @@ replied → converted
 ## Key Design Rules
 
 - AI generates JSON only — never HTML. Templates do all rendering.
-- BullMQ handles all async work — no polling loops.
-- Every worker connects to Supabase via PgBouncer (port 6543, not 5432).
+- All pipeline steps are plain async functions — no BullMQ, no Redis, no polling.
+- GCP Cloud Functions handle all HTTP endpoints (production). Express app for local dev.
+- Cloud Scheduler triggers hourly email sends via the `sendDueOutreach` function.
+- Every function connects to Supabase via PgBouncer (port 6543, not 5432).
 - Suppression check is mandatory before every email send — double guard.
 - Human approval gate exists between qualified → page_generated in early operation.
-- No LangGraph, no n8n — plain worker code only.
+- No LangGraph, no n8n — plain async functions only.
 
 ## Database Entities
 
@@ -138,7 +152,6 @@ The claim bar is injected by `@lead-gen/templates` `injectClaimBar()` during the
 ```
 DATABASE_URL=              # Supabase PgBouncer URL (port 6543)
 DIRECT_URL=                # Supabase direct URL (port 5432, for migrations only)
-REDIS_URL=                 # Upstash Redis connection string
 RESEND_API_KEY=
 RESEND_WEBHOOK_SECRET=
 SERP_API_KEY=
@@ -157,8 +170,8 @@ FROM_EMAIL=                # Resend sender address
 MAX_EMAILS_PER_DAY=500
 AGENCY_CHECKOUT_URL=       # e.g. https://siteforge.agency/checkout
 ADMIN_PASSWORD=            # Admin dashboard login
-PADDLE_WEBHOOK_SECRET=     # Paddle webhook signature verification
-PADDLE_EXTRA_PAGES_PRICE_ID= # Paddle price ID for the "Additional Pages" upsell
+PAYMENT_WEBHOOK_SECRET=    # TODO: Payment provider webhook secret (Stripe, Lemon Squeezy, etc.)
+# PAYMENT_EXTRA_PAGES_PRICE_ID= # TODO: Price ID for the "Additional Pages" upsell
 ```
 
 ## Useful Scripts
@@ -175,20 +188,23 @@ Run from repo root with `npx tsx scripts/<name>.ts`:
 
 - [x] Monorepo scaffold (turborepo + pnpm workspaces)
 - [x] Prisma schema (332 lines, all entities)
-- [x] BullMQ queue definitions + Bull Board UI
-- [x] Discovery worker (Google Places + SerpAPI)
-- [x] Enrichment worker (website audit, photos, AI analysis)
+- [x] GCP Cloud Functions (serverless, replaces BullMQ/Redis)
+- [x] Discovery processor (Google Places + SerpAPI)
+- [x] Enrichment processor (website audit, photos, AI analysis)
 - [x] Scoring engine (rule-based)
-- [x] Page gen worker (Claude Haiku content + Handlebars rendering)
-- [x] Deploy worker (R2 upload + claim bar injection)
-- [x] Scheduler worker (timezone-aware with date-fns-tz)
-- [x] Email worker (Resend + suppression checks)
-- [x] Reply ingestion webhook (Express)
+- [x] Page gen processor (Claude CLI + full HTML generation)
+- [x] Deploy processor (R2 upload + claim bar injection)
+- [x] Scheduler processor (timezone-aware outreach scheduling)
+- [x] Email processor (Resend + suppression checks)
+- [x] Reply ingestion webhook
+- [x] Cloud Scheduler email sender (sendDueOutreach, hourly)
+- [x] Pipeline orchestrator (runPipeline Cloud Function)
 - [x] Admin dashboard (Next.js, 8+ pages)
 - [x] Cloudflare Worker for landing page serving
 - [x] Agency site (SiteForge landing, checkout, request pages)
-- [ ] CI/CD pipeline (no automated deployments)
-- [ ] Production deployment docs
+- [x] GCP deploy script (functions/deploy.sh)
+- [ ] GCP deployment (run deploy.sh + update webhook URLs)
+- [ ] Delete Upstash Redis instance
 
 # currentDate
 Today's date is 2026-03-16.

@@ -6,14 +6,11 @@
   "main": "./dist/index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/index.js",
-    "dev": "tsx src/index.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@lead-gen/db": "workspace:*",
-    "@lead-gen/queue": "workspace:*",
-    "bullmq": "^5.34.8"
+    "@lead-gen/queue": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.7.0"

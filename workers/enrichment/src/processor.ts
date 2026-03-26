@@ -1,7 +1,6 @@
-import type { Job } from "bullmq";
 import type { EnrichmentJobData, EnrichmentJobResult } from "@lead-gen/queue";
 import { prisma } from "@lead-gen/db";
-import { scoringQueue } from "@lead-gen/queue";
+import { processScoringJob } from "@lead-gen/worker-scoring";
 import { auditWebsite } from "./website-audit.js";
 import { aiEnrichWebsite, type AiEnrichmentResult } from "./ai-enrichment.js";
 import { normalizePhone } from "./phone-utils.js";
@@ -17,20 +16,20 @@ function generateSlug(name: string, city: string | null, id: string): string {
 }
 
 export async function processEnrichmentJob(
-  job: Job<EnrichmentJobData, EnrichmentJobResult>,
+  data: EnrichmentJobData,
 ): Promise<EnrichmentJobResult> {
-  const { businessId } = job.data;
+  const { businessId } = data;
 
   const business = await prisma.business.findUniqueOrThrow({
     where: { id: businessId },
   });
 
   if (business.status !== "discovered") {
-    await job.log(`Skipping — status is "${business.status}", not "discovered"`);
+    console.log(`[enrichment] Skipping — status is "${business.status}", not "discovered"`);
     return { businessId, websiteScore: business.websiteScore };
   }
 
-  await job.log(`Enriching business: ${business.name}`);
+  console.log(`[enrichment] Enriching business: ${business.name}`);
 
   // ── Website audit ──
   let hasWebsite = false;
@@ -44,7 +43,7 @@ export async function processEnrichmentJob(
   let websiteHtml: string | null = null;
 
   if (business.website) {
-    await job.log(`Auditing website: ${business.website}`);
+    console.log(`[enrichment] Auditing website: ${business.website}`);
     const audit = await auditWebsite(business.website);
     hasWebsite = audit.loads;
     websiteScore = audit.score;
@@ -54,14 +53,14 @@ export async function processEnrichmentJob(
     techStack = audit.techStack;
     socialProfiles = audit.socialProfiles;
     websiteHtml = audit.loads ? audit.html : null;
-    await job.log(`Website score: ${audit.score}/100 (loads: ${audit.loads})`);
+    console.log(`[enrichment] Website score: ${audit.score}/100 (loads: ${audit.loads})`);
   } else {
-    await job.log("No website URL — skipping audit");
+    console.log("[enrichment] No website URL — skipping audit");
   }
 
   // ── AI enrichment (Claude CLI analysis) ──
   let aiInsights: AiEnrichmentResult | null = null;
-  await job.log("Running AI enrichment via Claude...");
+  console.log("[enrichment] Running AI enrichment via Claude...");
   try {
     aiInsights = await aiEnrichWebsite({
       businessName: business.name,
@@ -73,13 +72,13 @@ export async function processEnrichmentJob(
       categories: business.categories ?? [],
       html: websiteHtml,
     });
-    await job.log(`AI insights: ${aiInsights.designQuality} design, ${aiInsights.services.length} services, ${aiInsights.painPoints.length} pain points`);
+    console.log(`[enrichment] AI insights: ${aiInsights.designQuality} design, ${aiInsights.services.length} services, ${aiInsights.painPoints.length} pain points`);
     if (aiInsights.owner?.ownerName) {
-      await job.log(`Owner found: ${aiInsights.owner.ownerName} (${aiInsights.owner.ownerTitle ?? "unknown role"})`);
+      console.log(`[enrichment] Owner found: ${aiInsights.owner.ownerName} (${aiInsights.owner.ownerTitle ?? "unknown role"})`);
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    await job.log(`AI enrichment failed (non-fatal): ${message}`);
+    console.log(`[enrichment] AI enrichment failed (non-fatal): ${message}`);
   }
 
   // ── Phone normalization ──
@@ -90,38 +89,38 @@ export async function processEnrichmentJob(
     ? timezoneFromState(business.state)
     : "America/Chicago";
 
-  await job.log(`Timezone: ${timezone}`);
+  console.log(`[enrichment] Timezone: ${timezone}`);
 
   // ── Fetch Google reviews ──
   let reviews: Awaited<ReturnType<typeof fetchGoogleReviews>> = [];
   const serpApiKey = process.env.SERP_API_KEY;
   if (serpApiKey && (business.googleDataId || business.googlePlaceId)) {
-    await job.log("Fetching Google reviews via SerpAPI...");
+    console.log("[enrichment] Fetching Google reviews via SerpAPI...");
     reviews = await fetchGoogleReviews({
       dataId: business.googleDataId,
       placeId: business.googlePlaceId,
       apiKey: serpApiKey,
       maxReviews: 5,
     });
-    await job.log(`Fetched ${reviews.length} reviews`);
+    console.log(`[enrichment] Fetched ${reviews.length} reviews`);
   } else {
-    await job.log("Skipping reviews — no SERP_API_KEY or no place identifier");
+    console.log("[enrichment] Skipping reviews — no SERP_API_KEY or no place identifier");
   }
 
   // ── Fetch Google Maps photos ──
   let photos: StoredPhoto[] = [];
   if (serpApiKey && business.googleDataId) {
     const slug = generateSlug(business.name, business.city, business.id);
-    await job.log(`Fetching Google Maps photos for slug: ${slug}`);
+    console.log(`[enrichment] Fetching Google Maps photos for slug: ${slug}`);
     photos = await fetchAndStorePhotos({
       slug,
       dataId: business.googleDataId,
       apiKey: serpApiKey,
       maxPhotos: 8,
     });
-    await job.log(`Stored ${photos.length} compressed photos`);
+    console.log(`[enrichment] Stored ${photos.length} compressed photos`);
   } else {
-    await job.log("Skipping photos — no SERP_API_KEY or no google_data_id");
+    console.log("[enrichment] Skipping photos — no SERP_API_KEY or no google_data_id");
   }
 
   // ── Extract owner details from AI insights ──
@@ -151,11 +150,12 @@ export async function processEnrichmentJob(
     },
   });
 
-  await job.log("Business updated to enriched");
+  console.log("[enrichment] Business updated to enriched");
 
-  // Enqueue scoring
-  await scoringQueue.add(`score-${businessId}`, { businessId });
-  await job.log("Enqueued scoring job");
+  // ── Call scoring directly (no queue) ──
+  console.log("[enrichment] Running scoring...");
+  await processScoringJob({ businessId });
+  console.log("[enrichment] Scoring complete");
 
   return { businessId, websiteScore };
 }

@@ -1,0 +1,23 @@
+# GCP Cloud Functions environment variables.
+# Copy to deploy-env.yaml and fill in real values.
+# NEVER commit deploy-env.yaml (it's in .gitignore).
+
+DATABASE_URL: "postgresql://user:pass@host:6543/db?pgbouncer=true"
+DIRECT_URL: "postgresql://user:pass@host:5432/db"
+RESEND_API_KEY: "re_xxxx"
+RESEND_WEBHOOK_SECRET: "whsec_xxxx"
+SERP_API_KEY: "xxxx"
+CLOUDFLARE_ACCOUNT_ID: "xxxx"
+CLOUDFLARE_API_TOKEN: "xxxx"
+R2_ACCESS_KEY_ID: "xxxx"
+R2_SECRET_ACCESS_KEY: "xxxx"
+R2_BUCKET_NAME: "landing-pages"
+SUPABASE_URL: "https://xxxx.supabase.co"
+SUPABASE_SERVICE_KEY: "xxxx"
+FOUNDER_EMAIL: "you@example.com"
+PREVIEW_BASE_URL: "https://draft.siteforge.agency"
+FROM_EMAIL: "hello@siteforge.agency"
+MAX_EMAILS_PER_DAY: "500"
+AGENCY_CHECKOUT_URL: "https://siteforge.agency/checkout"
+PADDLE_WEBHOOK_SECRET: "pdl_xxxx"
+PADDLE_EXTRA_PAGES_PRICE_ID: "pri_xxxx"

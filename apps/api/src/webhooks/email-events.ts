@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { EmailEventType, OutreachMessageStatus } from "@prisma/client";
+import type { EmailEventType, OutreachMessageStatus } from "@lead-gen/db";
 import { prisma } from "@lead-gen/db";
 
 /**
@@ -91,7 +91,7 @@ export async function handleEmailEventsWebhook(
     data: {
       outreachMessageId: outreachMessage.id,
       type: eventType,
-      payload: payload as unknown as Record<string, unknown>,
+      payload: JSON.parse(JSON.stringify(payload)),
       occurredAt: new Date(created_at),
     },
   });

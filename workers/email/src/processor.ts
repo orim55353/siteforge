@@ -1,4 +1,3 @@
-import type { Job } from "bullmq";
 import type { EmailJobData, EmailJobResult } from "@lead-gen/queue";
 import { prisma } from "@lead-gen/db";
 import { Resend } from "resend";
@@ -8,9 +7,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const REPLY_TO_ADDRESS = process.env.REPLY_TO_ADDRESS ?? "replies@yourdomain.com";
 
 export async function processEmailJob(
-  job: Job<EmailJobData, EmailJobResult>,
+  data: EmailJobData,
 ): Promise<EmailJobResult> {
-  const { outreachMessageId } = job.data;
+  const { outreachMessageId } = data;
 
   // ── Load outreach message with business ──
   const message = await prisma.outreachMessage.findUniqueOrThrow({
@@ -24,7 +23,7 @@ export async function processEmailJob(
     );
   }
 
-  await job.log(`Sending email to: ${message.toEmail}`);
+  console.log(`[email] Sending email to: ${message.toEmail}`);
 
   // ── Double-guard suppression check ──
   const suppressed = await prisma.suppressionEntry.findUnique({
@@ -32,8 +31,8 @@ export async function processEmailJob(
   });
 
   if (suppressed) {
-    await job.log(
-      `SUPPRESSED: ${message.toEmail} (reason: ${suppressed.reason}). Skipping send.`,
+    console.log(
+      `[email] SUPPRESSED: ${message.toEmail} (reason: ${suppressed.reason}). Skipping send.`,
     );
     throw new Error(
       `Email ${message.toEmail} is on suppression list (reason: ${suppressed.reason})`,
@@ -41,7 +40,7 @@ export async function processEmailJob(
   }
 
   // ── Send via Resend (with open + click tracking) ──
-  const { data, error } = await resend.emails.send({
+  const { data: sendData, error } = await resend.emails.send({
     from: message.fromEmail,
     to: message.toEmail,
     replyTo: REPLY_TO_ADDRESS,
@@ -50,27 +49,23 @@ export async function processEmailJob(
     headers: {
       "X-Outreach-Message-Id": outreachMessageId,
     },
-    tracking: {
-      open: true,
-      click: true,
-    },
-  });
+  } as Parameters<typeof resend.emails.send>[0]);
 
   if (error) {
     throw new Error(`Resend API error: ${error.message}`);
   }
 
-  if (!data?.id) {
+  if (!sendData?.id) {
     throw new Error("Resend returned no message ID");
   }
 
-  await job.log(`Sent via Resend. ID: ${data.id}`);
+  console.log(`[email] Sent via Resend. ID: ${sendData.id}`);
 
   // ── Update outreach message with Resend ID and sent status ──
   await prisma.outreachMessage.update({
     where: { id: outreachMessageId },
     data: {
-      resendId: data.id,
+      resendId: sendData.id,
       status: "sent",
       sentAt: new Date(),
     },
@@ -82,7 +77,7 @@ export async function processEmailJob(
     data: { status: "outreach_sent" },
   });
 
-  await job.log(`Updated status to sent for message ${outreachMessageId}`);
+  console.log(`[email] Updated status to sent for message ${outreachMessageId}`);
 
-  return { outreachMessageId, resendId: data.id };
+  return { outreachMessageId, resendId: sendData.id };
 }

@@ -1,7 +1,6 @@
-import type { Job } from "bullmq";
 import type { DiscoveryJobData, DiscoveryJobResult } from "@lead-gen/queue";
 import { prisma } from "@lead-gen/db";
-import { enrichmentQueue } from "@lead-gen/queue";
+import { processEnrichmentJob } from "@lead-gen/worker-enrichment";
 import { searchPlaces, type PlaceResult } from "./serp-places.js";
 
 /**
@@ -21,11 +20,12 @@ function parseAddress(place: PlaceResult) {
 
 /**
  * Process a discovery job: search Google Places, deduplicate, insert new businesses.
+ * Calls enrichment directly for each new business (no queue).
  */
 export async function processDiscoveryJob(
-  job: Job<DiscoveryJobData, DiscoveryJobResult>,
+  data: DiscoveryJobData,
 ): Promise<DiscoveryJobResult> {
-  const { marketId, industry, city, state, country, maxResults } = job.data;
+  const { marketId, industry, city, state, country, maxResults } = data;
 
   const query = `${industry} in ${city}, ${state}${country && country !== "US" ? `, ${country}` : ""}`;
 
@@ -34,9 +34,9 @@ export async function processDiscoveryJob(
     throw new Error("SERP_API_KEY is not set");
   }
 
-  await job.log(`Searching SerpAPI Google Maps: "${query}"`);
+  console.log(`[discovery] Searching SerpAPI Google Maps: "${query}"`);
   const places = await searchPlaces(query, apiKey, maxResults);
-  await job.log(`Found ${places.length} results from SerpAPI`);
+  console.log(`[discovery] Found ${places.length} results from SerpAPI`);
 
   // Save MarketScan analytics
   const withWebsiteCount = places.filter((p) => p.website).length;
@@ -96,7 +96,7 @@ export async function processDiscoveryJob(
       })),
     },
   });
-  await job.log(`MarketScan saved: ${places.length} total, ${withWebsiteCount} with website, ${qualifyingPlaces.length} qualifying`);
+  console.log(`[discovery] MarketScan saved: ${places.length} total, ${withWebsiteCount} with website, ${qualifyingPlaces.length} qualifying`);
 
   if (places.length === 0) {
     return { businessIds: [], count: 0 };
@@ -120,8 +120,8 @@ export async function processDiscoveryJob(
   });
 
   const filtered = deduped.length - newPlaces.length;
-  await job.log(
-    `${existingIds.size} already in DB, ${deduped.length} new, ${filtered} filtered out (has website / low rating / few reviews), ${newPlaces.length} to insert`,
+  console.log(
+    `[discovery] ${existingIds.size} already in DB, ${deduped.length} new, ${filtered} filtered out (has website / low rating / few reviews), ${newPlaces.length} to insert`,
   );
 
   if (newPlaces.length === 0) {
@@ -162,15 +162,19 @@ export async function processDiscoveryJob(
     insertedIds.push(business.id);
   }
 
-  await job.log(`Inserted ${insertedIds.length} businesses`);
+  console.log(`[discovery] Inserted ${insertedIds.length} businesses`);
 
-  // Enqueue enrichment jobs for each new business
-  const enrichmentJobs = insertedIds.map((id) => ({
-    name: `enrich-${id}`,
-    data: { businessId: id },
-  }));
-  await enrichmentQueue.addBulk(enrichmentJobs);
-  await job.log(`Enqueued ${enrichmentJobs.length} enrichment jobs`);
+  // ── Enrich each business directly (no queue) ──
+  console.log(`[discovery] Running enrichment for ${insertedIds.length} businesses...`);
+  for (const id of insertedIds) {
+    try {
+      await processEnrichmentJob({ businessId: id });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      console.error(`[discovery] Enrichment failed for ${id}: ${message}`);
+    }
+  }
+  console.log("[discovery] All enrichment complete");
 
   return { businessIds: insertedIds, count: insertedIds.length };
 }

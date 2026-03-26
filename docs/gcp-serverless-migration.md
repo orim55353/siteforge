@@ -161,13 +161,13 @@ PADDLE_EXTRA_PAGES_PRICE_ID
 
 ## Migration Order
 
-1. **Create `functions/` directory** with individual function entry points
-2. **Refactor pipeline steps** from BullMQ workers to plain async functions
-3. **Deploy API functions** to GCP and verify webhooks work
-4. **Set up Cloud Scheduler** for hourly email sends
-5. **Update external webhook URLs** (Resend, Paddle, Cloudflare Worker)
-6. **Remove BullMQ/Redis** dependencies
-7. **Delete Upstash Redis** instance
+1. ~~**Create `functions/` directory** with individual function entry points~~ ✅ Done
+2. ~~**Refactor pipeline steps** from BullMQ workers to plain async functions~~ ✅ Done
+3. **Deploy API functions** to GCP and verify webhooks work → `cd functions && bash deploy.sh`
+4. **Set up Cloud Scheduler** for hourly email sends → included in deploy.sh
+5. **Update external webhook URLs** (Resend, Paddle, Cloudflare Worker) → point to GCP Function URLs
+6. ~~**Remove BullMQ/Redis** dependencies~~ ✅ Done
+7. **Delete Upstash Redis** instance → after verifying GCP deployment works
 
 ## Cost Summary
 

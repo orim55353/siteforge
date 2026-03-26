@@ -1,4 +1,3 @@
-import type { Job } from "bullmq";
 import type { DeployJobData, DeployJobResult } from "@lead-gen/queue";
 import { prisma } from "@lead-gen/db";
 import { deployToCloudflare, inferContentType } from "./cloudflare.js";
@@ -7,9 +6,9 @@ import type { SiteAsset } from "./cloudflare.js";
 const SUPABASE_IMAGES_BUCKET = "site-images";
 
 export async function processDeployJob(
-  job: Job<DeployJobData, DeployJobResult>,
+  data: DeployJobData,
 ): Promise<DeployJobResult> {
-  const { businessId, previewPageId } = job.data;
+  const { businessId, previewPageId } = data;
 
   // ── Fetch preview page and business ──
   const previewPage = await prisma.previewPage.findUniqueOrThrow({
@@ -32,10 +31,10 @@ export async function processDeployJob(
     );
   }
 
-  await job.log(`Deploying page for: ${business.name} (slug: ${previewPage.slug})`);
+  console.log(`[deploy] Deploying page for: ${business.name} (slug: ${previewPage.slug})`);
 
   // ── Fetch HTML from Supabase Storage ──
-  await job.log(`Fetching HTML from Supabase Storage: ${previewPage.htmlUrl}`);
+  console.log(`[deploy] Fetching HTML from Supabase Storage: ${previewPage.htmlUrl}`);
   const htmlRes = await fetch(previewPage.htmlUrl);
   if (!htmlRes.ok) {
     throw new Error(
@@ -43,14 +42,14 @@ export async function processDeployJob(
     );
   }
   const html = await htmlRes.text();
-  await job.log(`Fetched HTML (${html.length} bytes)`);
+  console.log(`[deploy] Fetched HTML (${html.length} bytes)`);
 
   // ── Fetch images from Supabase Storage ──
-  const assets = await fetchBusinessImages(previewPage.slug, job);
+  const assets = await fetchBusinessImages(previewPage.slug);
 
   // ── Deploy to Cloudflare R2 ──
   const { deployedUrl, r2Keys } = await deployToCloudflare(previewPage.slug, html, assets, business.name);
-  await job.log(`Uploaded to Cloudflare R2: ${deployedUrl} (${r2Keys.length} files)`);
+  console.log(`[deploy] Uploaded to Cloudflare R2: ${deployedUrl} (${r2Keys.length} files)`);
 
   // ── Create intent_pages row ──
   const intentPage = await prisma.intentPage.create({
@@ -70,7 +69,7 @@ export async function processDeployJob(
     data: { status: "page_deployed" },
   });
 
-  await job.log(`Intent page created: ${intentPage.id}, status → page_deployed`);
+  console.log(`[deploy] Intent page created: ${intentPage.id}, status → page_deployed`);
 
   return {
     intentPageId: intentPage.id,
@@ -80,23 +79,13 @@ export async function processDeployJob(
 
 /**
  * Fetch all images for a business from Supabase Storage.
- *
- * Images are stored in the "site-images" bucket under {slug}/ prefix.
- * e.g. site-images/{slug}/hero.jpg, site-images/{slug}/gallery-1.jpg
- *
- * If no images exist or the bucket doesn't exist, returns an empty array
- * (pages work fine without images).
  */
-async function fetchBusinessImages(
-  slug: string,
-  job: Job,
-): Promise<SiteAsset[]> {
+async function fetchBusinessImages(slug: string): Promise<SiteAsset[]> {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SERVICE_KEY;
 
   if (!supabaseUrl || !supabaseKey) return [];
 
-  // List files in the slug folder
   const listUrl = `${supabaseUrl}/storage/v1/object/list/${SUPABASE_IMAGES_BUCKET}`;
   const listRes = await fetch(listUrl, {
     method: "POST",
@@ -108,8 +97,7 @@ async function fetchBusinessImages(
   });
 
   if (!listRes.ok) {
-    // Bucket may not exist yet — that's fine, just no images
-    await job.log(`No images bucket or folder found for ${slug} (${listRes.status})`);
+    console.log(`[deploy] No images bucket or folder found for ${slug} (${listRes.status})`);
     return [];
   }
 
@@ -117,13 +105,12 @@ async function fetchBusinessImages(
   const imageFiles = files.filter((f) => /\.(jpg|jpeg|png|webp|avif|svg|gif)$/i.test(f.name));
 
   if (imageFiles.length === 0) {
-    await job.log("No images found for this business");
+    console.log("[deploy] No images found for this business");
     return [];
   }
 
-  await job.log(`Found ${imageFiles.length} images to deploy`);
+  console.log(`[deploy] Found ${imageFiles.length} images to deploy`);
 
-  // Download each image in parallel
   const assets: SiteAsset[] = [];
   const downloadResults = await Promise.allSettled(
     imageFiles.map(async (file) => {
@@ -149,10 +136,10 @@ async function fetchBusinessImages(
     if (result.status === "fulfilled") {
       assets.push(result.value);
     } else {
-      await job.log(`Warning: ${result.reason}`);
+      console.warn(`[deploy] Warning: ${result.reason}`);
     }
   }
 
-  await job.log(`Downloaded ${assets.length} images (${imageFiles.length} total)`);
+  console.log(`[deploy] Downloaded ${assets.length} images (${imageFiles.length} total)`);
   return assets;
 }

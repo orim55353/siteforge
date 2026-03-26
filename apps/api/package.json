@@ -12,7 +12,12 @@
   },
   "dependencies": {
     "@lead-gen/db": "workspace:*",
+    "@lead-gen/ai": "workspace:*",
+    "@lead-gen/templates": "workspace:*",
     "@lead-gen/queue": "workspace:*",
+    "@lead-gen/worker-extra-pages": "workspace:*",
+    "@aws-sdk/client-s3": "^3.1009.0",
+    "@supabase/supabase-js": "^2.99.1",
     "cors": "^2.8.6",
     "express": "^4.22.1",
     "resend": "^4.8.0"

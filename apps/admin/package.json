@@ -11,8 +11,6 @@
   },
   "dependencies": {
     "@lead-gen/db": "workspace:*",
-    "bullmq": "^5.34.8",
-    "ioredis": "^5.9.3",
     "@supabase/supabase-js": "^2.45.0",
     "next": "^15.1.0",
     "react": "^19.0.0",

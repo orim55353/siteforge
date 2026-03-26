@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { PrismaClient } from "@lead-gen/db";
-import { extraPagesQueue } from "@lead-gen/queue";
+import { processExtraPagesJob } from "@lead-gen/worker-extra-pages";
 
 const prisma = new PrismaClient();
 
@@ -46,8 +46,8 @@ export async function handlePageView(req: Request, res: Response): Promise<void>
     });
 
     // Trigger extra page generation on first view (fire-and-forget)
-    enqueueExtraPagesIfNeeded(slug).catch((err) => {
-      console.error("[page-view] Failed to check/enqueue extra pages:", err);
+    triggerExtraPagesIfNeeded(slug).catch((err) => {
+      console.error("[page-view] Failed to trigger extra pages:", err);
     });
 
     res.status(204).end();
@@ -58,15 +58,10 @@ export async function handlePageView(req: Request, res: Response): Promise<void>
 }
 
 /**
- * Check if extra pages (about, services, gallery) already exist for this slug.
- * If not, find the business and enqueue a generation job.
- *
- * This is idempotent — duplicate calls for the same slug are safe because:
- * 1. We check for existing pages before enqueueing
- * 2. The worker also checks before generating
- * 3. BullMQ deduplicates by job ID (keyed on slug)
+ * Check if extra pages already exist for this slug.
+ * If not, find the business and run generation directly.
  */
-async function enqueueExtraPagesIfNeeded(slug: string): Promise<void> {
+async function triggerExtraPagesIfNeeded(slug: string): Promise<void> {
   // Check if any extra pages already exist for this slug
   const existingExtraPage = await prisma.previewPage.findFirst({
     where: {
@@ -86,19 +81,12 @@ async function enqueueExtraPagesIfNeeded(slug: string): Promise<void> {
 
   if (!intentPage) return; // Not a deployed landing page slug
 
-  // Enqueue with slug as job ID to prevent duplicates
-  await extraPagesQueue.add(
-    `extra-pages-${slug}`,
-    {
-      businessId: intentPage.businessId,
-      slug,
-    },
-    {
-      jobId: `extra-pages-${slug}`,
-      attempts: 2,
-      backoff: { type: "exponential", delay: 10_000 },
-    },
-  );
+  console.log(`[page-view] Generating extra pages for slug=${slug}`);
 
-  console.log(`[page-view] Enqueued extra-pages job for slug=${slug}`);
+  await processExtraPagesJob({
+    businessId: intentPage.businessId,
+    slug,
+  });
+
+  console.log(`[page-view] Extra pages generated for slug=${slug}`);
 }

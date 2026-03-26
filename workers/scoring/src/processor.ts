@@ -1,23 +1,22 @@
-import type { Job } from "bullmq";
 import type { ScoringJobData, ScoringJobResult } from "@lead-gen/queue";
 import { prisma } from "@lead-gen/db";
 import { scoreBusiness } from "./score.js";
 
 export async function processScoringJob(
-  job: Job<ScoringJobData, ScoringJobResult>,
+  data: ScoringJobData,
 ): Promise<ScoringJobResult> {
-  const { businessId } = job.data;
+  const { businessId } = data;
 
   const business = await prisma.business.findUniqueOrThrow({
     where: { id: businessId },
   });
 
   if (business.status !== "enriched") {
-    await job.log(`Skipping — status is "${business.status}", not "enriched"`);
+    console.log(`[scoring] Skipping — status is "${business.status}", not "enriched"`);
     return { businessId, score: business.score ?? 0, qualified: false };
   }
 
-  await job.log(`Scoring business: ${business.name}`);
+  console.log(`[scoring] Scoring business: ${business.name}`);
 
   const result = scoreBusiness({
     googleRating: business.googleRating ? Number(business.googleRating) : null,
@@ -26,13 +25,13 @@ export async function processScoringJob(
     hasWebsite: business.hasWebsite ?? false,
   });
 
-  await job.log(
-    `Score: ${result.totalScore}/100 | Qualified: ${result.qualified} | ` +
+  console.log(
+    `[scoring] Score: ${result.totalScore}/100 | Qualified: ${result.qualified} | ` +
       `Rating: ${result.ratingScore} Reviews: ${result.reviewScore} Website: ${result.websiteScore}`,
   );
 
   if (result.reasons.length > 0) {
-    await job.log(`Disqualification reasons: ${result.reasons.join(", ")}`);
+    console.log(`[scoring] Disqualification reasons: ${result.reasons.join(", ")}`);
   }
 
   const newStatus = result.qualified ? "qualified" : "disqualified";
@@ -52,7 +51,7 @@ export async function processScoringJob(
     },
   });
 
-  await job.log(`Business updated to ${newStatus}`);
+  console.log(`[scoring] Business updated to ${newStatus}`);
 
   return {
     businessId,

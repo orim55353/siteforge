@@ -11,3 +11,6 @@ data.md
 *.dylib.node
 supabase/.temp/
 .claude/settings.local.json
+
+# GCP deploy env (contains secrets)
+functions/deploy-env.yaml

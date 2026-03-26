@@ -1,13 +1,17 @@
-import type { Job } from "bullmq";
 import type { SchedulerJobData, SchedulerJobResult } from "@lead-gen/queue";
 import { prisma } from "@lead-gen/db";
-import { emailQueue } from "@lead-gen/queue";
 import { getNextSendWindow } from "./send-window.js";
 
+/**
+ * Schedule outreach for a business.
+ * Creates an outreach_messages row with a future scheduledFor time.
+ * The sendDueOutreach Cloud Function (triggered by Cloud Scheduler) will
+ * pick it up and send it when the time arrives.
+ */
 export async function processSchedulerJob(
-  job: Job<SchedulerJobData, SchedulerJobResult>,
+  data: SchedulerJobData,
 ): Promise<SchedulerJobResult> {
-  const { businessId, campaignId, sendAt } = job.data;
+  const { businessId, campaignId, sendAt } = data;
 
   // ── Load business + campaign ──
   const business = await prisma.business.findUniqueOrThrow({
@@ -28,7 +32,7 @@ export async function processSchedulerJob(
     where: { id: campaignId },
   });
 
-  await job.log(`Scheduling outreach for: ${business.name} (${business.email})`);
+  console.log(`[scheduler] Scheduling outreach for: ${business.name} (${business.email})`);
 
   // ── Calculate send time ──
   const timezone = business.timezone ?? "America/Chicago";
@@ -36,8 +40,8 @@ export async function processSchedulerJob(
     ? new Date(sendAt)
     : getNextSendWindow(timezone);
 
-  await job.log(
-    `Send window: ${scheduledFor.toISOString()} (tz: ${timezone})`,
+  console.log(
+    `[scheduler] Send window: ${scheduledFor.toISOString()} (tz: ${timezone})`,
   );
 
   // ── Render email subject + body from campaign templates ──
@@ -60,7 +64,7 @@ export async function processSchedulerJob(
     },
   });
 
-  await job.log(`Outreach message created: ${outreachMessage.id}`);
+  console.log(`[scheduler] Outreach message created: ${outreachMessage.id}`);
 
   // ── Update business status ──
   await prisma.business.update({
@@ -68,17 +72,7 @@ export async function processSchedulerJob(
     data: { status: "outreach_scheduled" },
   });
 
-  // ── Enqueue delayed email job ──
-  const delayMs = Math.max(0, scheduledFor.getTime() - Date.now());
-  await emailQueue.add(
-    `email-${outreachMessage.id}`,
-    { outreachMessageId: outreachMessage.id },
-    { delay: delayMs },
-  );
-
-  await job.log(
-    `Email job enqueued with ${Math.round(delayMs / 1000)}s delay`,
-  );
+  console.log(`[scheduler] Scheduled for ${scheduledFor.toISOString()}`);
 
   return {
     outreachMessageId: outreachMessage.id,
@@ -88,8 +82,7 @@ export async function processSchedulerJob(
 
 /**
  * Simple template rendering — replaces {{field}} placeholders with
- * business data. For the MVP this handles the common fields;
- * the campaign body_template uses Handlebars syntax that we resolve here.
+ * business data.
  */
 function renderTemplate(
   template: string,

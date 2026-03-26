@@ -4,7 +4,7 @@ import { handleInboundWebhook } from "./webhooks/inbound.js";
 import { handleEmailEventsWebhook } from "./webhooks/email-events.js";
 import { handlePageView } from "./webhooks/page-view.js";
 import { handleCheckoutEvent } from "./webhooks/checkout-event.js";
-import { handlePaddleWebhook } from "./webhooks/paddle.js";
+import { handlePaymentWebhook } from "./webhooks/paddle.js";
 
 const app = express();
 const PORT = parseInt(process.env.PORT ?? "3001", 10);
@@ -31,8 +31,8 @@ app.post("/webhooks/inbound", handleInboundWebhook);
 // Resend email event webhooks (delivered, opened, clicked, bounced, complained)
 app.post("/webhooks/email-events", handleEmailEventsWebhook);
 
-// Paddle payment webhooks (transaction.completed → order fulfillment)
-app.post("/webhooks/paddle", handlePaddleWebhook);
+// Payment provider webhook (TODO: update route name when provider is chosen)
+app.post("/webhooks/payment", handlePaymentWebhook);
 
 app.listen(PORT, () => {
   console.log(`[api] Listening on port ${PORT}`);

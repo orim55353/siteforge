@@ -1,23 +1,4 @@
-// Connection
-export { redisConnection } from "./connection.js";
-
-// Queue names & instances
-export {
-  QUEUE_NAMES,
-  type QueueName,
-  discoveryQueue,
-  enrichmentQueue,
-  scoringQueue,
-  pageGenQueue,
-  deployQueue,
-  schedulerQueue,
-  emailQueue,
-  extraPagesQueue,
-  replyIngestionQueue,
-  allQueues,
-} from "./queues.js";
-
-// Job payload types
+// Job payload types (the only thing this package exports now)
 export type {
   DiscoveryJobData,
   EnrichmentJobData,
@@ -38,10 +19,3 @@ export type {
   ExtraPagesJobResult,
   ReplyIngestionJobResult,
 } from "./jobs.js";
-
-// Worker utilities
-export { createWorker, shutdownWorkers } from "./worker-base.js";
-export type { WorkerConfig } from "./worker-base.js";
-
-// Bull Board (admin UI)
-export { createBoardAdapter } from "./board.js";

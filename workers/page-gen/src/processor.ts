@@ -1,4 +1,3 @@
-import type { Job } from "bullmq";
 import type { PageGenJobData, PageGenJobResult } from "@lead-gen/queue";
 import { prisma } from "@lead-gen/db";
 import type { BusinessInput } from "@lead-gen/ai";
@@ -6,9 +5,9 @@ import { generatePage } from "./ai-content.js";
 import { uploadToSupabase } from "./storage.js";
 
 export async function processPageGenJob(
-  job: Job<PageGenJobData, PageGenJobResult>,
+  data: PageGenJobData,
 ): Promise<PageGenJobResult> {
-  const { businessId } = job.data;
+  const { businessId } = data;
 
   const business = await prisma.business.findUniqueOrThrow({
     where: { id: businessId },
@@ -16,21 +15,21 @@ export async function processPageGenJob(
   });
 
   if (business.status !== "qualified") {
-    await job.log(`Skipping — status is "${business.status}", not "qualified"`);
+    console.log(`[page-gen] Skipping — status is "${business.status}", not "qualified"`);
     throw new Error(`Business ${businessId} status is "${business.status}", expected "qualified"`);
   }
 
-  await job.log(`Generating page for: ${business.name}`);
+  console.log(`[page-gen] Generating page for: ${business.name}`);
 
   // ── Generate full HTML page via Claude CLI ──
-  await job.log("Calling Claude CLI to generate full HTML page...");
+  console.log("[page-gen] Calling Claude CLI to generate full HTML page...");
   const html = await generatePage(business as unknown as BusinessInput);
-  await job.log(`HTML generated (${html.length} bytes)`);
+  console.log(`[page-gen] HTML generated (${html.length} bytes)`);
 
   // ── Upload to Supabase Storage ──
   const slug = generateSlug(business.name, business.city, businessId);
   const htmlUrl = await uploadToSupabase(slug, html);
-  await job.log(`Uploaded to Supabase Storage: ${htmlUrl}`);
+  console.log(`[page-gen] Uploaded to Supabase Storage: ${htmlUrl}`);
 
   // ── Create preview_pages row ──
   const previewBaseUrl = process.env.PREVIEW_BASE_URL ?? "https://draft.example.com";
@@ -53,7 +52,7 @@ export async function processPageGenJob(
     data: { status: "page_generated" },
   });
 
-  await job.log(`Preview page created: ${previewPage.id}`);
+  console.log(`[page-gen] Preview page created: ${previewPage.id}`);
 
   return { previewPageId: previewPage.id, slug };
 }
